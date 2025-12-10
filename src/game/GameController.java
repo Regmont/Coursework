@@ -1,11 +1,12 @@
 package game;
 
-import geometricObjects.CubeFactory;
+import geometricObjects.OBJParser;
 import org.joml.Matrix4d;
 import sceneObjects.Camera;
 import geometricObjects.Mesh;
 import rendering.SceneTransformer;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TimerTask;
 
@@ -20,6 +21,7 @@ public class GameController {
     private final InputHandler inputHandler;
     private final MouseHandler mouseHandler;
     private final int frameTimeMs;
+    private Mesh loadedMesh;
 
     private boolean mouseCaptured = false;
 
@@ -30,6 +32,12 @@ public class GameController {
         this.inputHandler = new InputHandler();
         this.mouseHandler = new MouseHandler();
         frameTimeMs = 1000 / targetFps;
+
+        try {
+            loadedMesh = OBJParser.parseOBJ("models/sphere.obj", 1.0f, Color.WHITE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         updateTransformedScene();
     }
@@ -86,16 +94,15 @@ public class GameController {
     private void updateTransformedScene() {
         objects.clear();
 
-        Mesh baseCube = CubeFactory.createCube(1.0f,
-                Color.WHITE, Color.RED, Color.GREEN, Color.YELLOW, Color.GRAY, Color.PINK);
-
         Matrix4d modelMatrix = new Matrix4d()
                 .translate(0, 0, -10);
 
-        Mesh transformedCube = SceneTransformer.transformMesh(baseCube,
-                SceneTransformer.createMVPMatrix(camera, modelMatrix));
+        Mesh transformedMesh = SceneTransformer.transformMesh(
+                loadedMesh,
+                SceneTransformer.createMVPMatrix(camera, modelMatrix)
+        );
 
-        objects.add(transformedCube);
+        objects.add(transformedMesh);
     }
 
     public void handleMouseMove(java.awt.event.MouseEvent e) {
