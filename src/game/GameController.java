@@ -1,11 +1,19 @@
 package game;
 
 import geometricObjects.OBJParser;
+import geometricObjects.Triangle;
+import math.Point3D;
 import org.joml.Matrix4d;
+import rendering.Material;
 import sceneObjects.Camera;
 import geometricObjects.Mesh;
 import rendering.SceneTransformer;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TimerTask;
@@ -34,10 +42,37 @@ public class GameController {
         frameTimeMs = 1000 / targetFps;
 
         try {
-            loadedMesh = OBJParser.parseOBJ("models/sphere.obj", 1.0f, Color.WHITE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            BufferedImage texture = ImageIO.read(new File("textures/Sphere.png"));
+            Material material = new Material(texture);
+
+            loadedMesh = OBJParser.parseOBJ("models/Cube.obj", 1.0f);
+
+            for (Triangle tri : loadedMesh.getTriangles()) {
+                Point2D uv1 = tri.getUV1();
+                Point2D uv2 = tri.getUV2();
+                Point2D uv3 = tri.getUV3();
+
+                if (uv1 == null || uv2 == null || uv3 == null) {
+                    uv1 = new Point2D.Double(0, 0);
+                    uv2 = new Point2D.Double(1, 0);
+                    uv3 = new Point2D.Double(0, 1);
+                }
+
+                ArrayList<Point3D> points = tri.getPoints();
+                Point3D[] originalPoints = tri.hasOriginalPoints() ?
+                        tri.getOriginalPoints() :
+                        new Point3D[]{points.get(0), points.get(1), points.get(2)};
+
+                Triangle newTri = new Triangle(
+                        points.get(0), points.get(1), points.get(2),
+                        material, originalPoints, uv1, uv2, uv3
+                );
+
+                loadedMesh.getTriangles().set(
+                        loadedMesh.getTriangles().indexOf(tri), newTri
+                );
+            }
+        } catch (IOException e) { e.printStackTrace(); }
 
         updateTransformedScene();
     }

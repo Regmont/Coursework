@@ -7,6 +7,7 @@ import math.Point3D;
 import org.joml.Matrix4d;
 import org.joml.Vector4d;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SceneTransformer {
     private static int screenWidth = 400;
@@ -41,7 +42,7 @@ public class SceneTransformer {
     }
 
     public static Mesh transformMesh(Mesh mesh, Matrix4d transformMatrix) {
-        ArrayList<Triangle> originalTriangles = mesh.getTriangles();
+        List<Triangle> originalTriangles = mesh.getTriangles();
         ArrayList<Triangle> transformedTriangles = new ArrayList<>();
 
         for (Triangle triangle : originalTriangles) {
@@ -60,8 +61,11 @@ public class SceneTransformer {
                     transformedPoints[0],
                     transformedPoints[1],
                     transformedPoints[2],
-                    triangle.getColor(),
-                    originalPoints
+                    triangle.getMaterial(),
+                    originalPoints,
+                    triangle.getUV1(),
+                    triangle.getUV2(),
+                    triangle.getUV3()
             );
 
             transformedTriangles.add(transformedTriangle);

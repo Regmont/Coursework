@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 public class GameClient {
     private static final double INITIAL_X = 0;
-    private static final double INITIAL_Y = 2;
+    private static final double INITIAL_Y = 4;
     private static final double INITIAL_Z = 5;
     private static final String TITLE = "3D Game";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Color.YELLOW;
     private static final int TARGET_FPS = 60;
 
     public static void main(String[] args) {

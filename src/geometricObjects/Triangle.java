@@ -1,37 +1,42 @@
 package geometricObjects;
 
 import math.Point3D;
+import rendering.Material;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class Triangle {
     private final Point3D point1;
     private final Point3D point2;
     private final Point3D point3;
-    private final Color color;
+    private final Material material;
+    private final Point2D uv1;
+    private final Point2D uv2;
+    private final Point2D uv3;
     private Point3D normal;
     private final Point3D[] originalPoints;
 
     private BoundingBox boundingBox = null;
     private boolean boundingBoxDirty = true;
 
-    public Triangle(Point3D point1, Point3D point2, Point3D point3, Color color) {
-        this(point1, point2, point3, color, null);
-    }
-
     public Triangle(Point3D point1, Point3D point2, Point3D point3,
-                    Color color, Point3D[] originalPoints) {
+                    Material material, Point3D[] originalPoints,
+                    Point2D uv1, Point2D uv2, Point2D uv3) {
         this.point1 = point1;
         this.point2 = point2;
         this.point3 = point3;
-        this.color = color;
+        this.material = material;
         this.originalPoints = originalPoints;
+        this.uv1 = uv1;
+        this.uv2 = uv2;
+        this.uv3 = uv3;
         this.normal = null;
     }
 
-    public Color getColor() {
-        return color;
+    public Material getMaterial() {
+        return material;
     }
 
     public ArrayList<Point3D> getPoints() {
@@ -39,13 +44,16 @@ public class Triangle {
         points.add(point1);
         points.add(point2);
         points.add(point3);
-
         return points;
     }
 
+    public Point2D getUV1() { return uv1; }
+    public Point2D getUV2() { return uv2; }
+    public Point2D getUV3() { return uv3; }
+    public boolean hasUV() { return uv1 != null && uv2 != null && uv3 != null; }
+
     public BoundingBox getBoundingBox() {
-        if (boundingBox != null && !boundingBoxDirty)
-        {
+        if (boundingBox != null && !boundingBoxDirty) {
             return boundingBox;
         }
 
@@ -107,8 +115,12 @@ public class Triangle {
         return originalPoints != null;
     }
 
+    public Color getColor() {
+        return material.getColor();
+    }
+
     @Override
     public String toString() {
-        return point1 + " " + point2 + " " + point3 + ", color = " + color;
+        return point1 + " " + point2 + " " + point3;
     }
 }

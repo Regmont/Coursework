@@ -47,7 +47,7 @@ public class MainWindow extends JFrame {
             Color[][] colorBuffer = new Color[width][height];
             double[][] depthBuffer = new double[width][height];
 
-            MainRenderer renderer = new MainRenderer(backgroundColor);
+            MainRenderer renderer = new MainRenderer();
             renderer.renderScene(objects, colorBuffer, depthBuffer, backgroundColor);
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
