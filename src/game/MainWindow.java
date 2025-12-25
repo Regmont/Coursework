@@ -1,66 +1,72 @@
 package game;
 
-import sceneObjects.Camera;
-import geometricObjects.Mesh;
-import rendering.MainRenderer;
-import rendering.SceneTransformer;
+import geometry.Mesh;
+import graphics.SceneSystem;
+import graphics.renderer.MainRenderer;
 
-import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.awt.image.DataBufferInt;
+import java.util.List;
 
-public class MainWindow extends JFrame {
-    private ArrayList<Mesh> objects;
-    private final RenderPanel renderPanel;
-    private final Color backgroundColor;
+public class MainWindow extends Frame {
+    private static final Color BACKGROUND_COLOR = Color.GRAY;
+    private final SceneSystem sceneSystem;
 
-    public MainWindow(ArrayList<Mesh> objects, String title, int width, int height,
-                      Color backgroundColor) {
-        this.objects = objects;
-        this.backgroundColor = backgroundColor;
+    private Color[][] colorBuffer;
+    private double[][] depthBuffer;
+    private BufferedImage image;
+
+    public MainWindow(SceneSystem sceneSystem, String title, int width, int height) {
+        this.sceneSystem = sceneSystem;
 
         setTitle(title);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(width, height);
         setLocationRelativeTo(null);
 
-        renderPanel = new RenderPanel();
-        add(renderPanel);
-    }
-
-    public void updateObjects(ArrayList<Mesh> newObjects) {
-        this.objects = newObjects;
-        renderPanel.repaint();
-    }
-
-    class RenderPanel extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            int width = getWidth();
-            int height = getHeight();
-
-            SceneTransformer.setScreenSize(width, height);
-
-            Color[][] colorBuffer = new Color[width][height];
-            double[][] depthBuffer = new double[width][height];
-
-            MainRenderer renderer = new MainRenderer();
-            renderer.renderScene(objects, colorBuffer, depthBuffer, backgroundColor);
-
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    Color color = colorBuffer[x][y];
-                    int rgb = (color != null) ? color.getRGB() : backgroundColor.getRGB();
-                    image.setRGB(x, y, rgb);
-                }
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
             }
+        });
+    }
 
-            g.drawImage(image, 0, 0, null);
+    @Override
+    public void paint(Graphics g) {
+        int width = getWidth();
+        int height = getHeight();
+
+        if (colorBuffer == null || colorBuffer.length != width || colorBuffer[0].length != height) {
+            colorBuffer = new Color[width][height];
+            depthBuffer = new double[width][height];
+            image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        }
+
+        MainRenderer.clearBuffers(colorBuffer, depthBuffer, BACKGROUND_COLOR);
+
+        List<Mesh> meshes = sceneSystem.getTransformedMeshes(width, height);
+        MainRenderer.renderScene(meshes, colorBuffer, depthBuffer, BACKGROUND_COLOR);
+
+        copyColorBufferToImage(width, height);
+
+        g.drawImage(image, 0, 0, null);
+    }
+
+    @Override
+    public void update(Graphics g) {
+        paint(g);
+    }
+
+    private void copyColorBufferToImage(int width, int height) {
+        int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        int backgroundRGB = BACKGROUND_COLOR.getRGB();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Color color = colorBuffer[x][y];
+                pixels[y * width + x] = (color != null) ? color.getRGB() : backgroundRGB;
+            }
         }
     }
 }

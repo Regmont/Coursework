@@ -1,0 +1,75 @@
+package scene;
+
+import math.Vector3D;
+import org.joml.Matrix4d;
+
+public class Camera {
+    private static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
+    private static final double MIN_PITCH = -Math.PI / 2.0 + 0.01; // -89.99°
+    private static final double FOV = Math.PI / 3; // 60°
+    private static final double NEAR_PLANE = 0.1;
+    private static final double FAR_PLANE = 100.0;
+
+    private Vector3D position;
+    private Vector3D rotation;
+    private final double speed;
+
+    public Camera(Vector3D position, Vector3D rotation, double speed) {
+        this.position = position;
+        this.rotation = rotation;
+        this.speed = speed;
+    }
+
+    public Vector3D getPosition() {
+        return position;
+    }
+
+    public Vector3D getRotation() {
+        return rotation;
+    }
+
+    public void setPosition(Vector3D position) {
+        this.position = position;
+    }
+
+    public void addRotation(double deltaYaw, double deltaPitch) {
+        double newYaw = rotation.getX() + deltaYaw;
+        double newPitch = rotation.getY() + deltaPitch;
+
+        newPitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, newPitch));
+
+        rotation = new Vector3D(newYaw, newPitch, rotation.getZ());
+    }
+
+    public Vector3D getLookAtPoint() {
+        double yaw = rotation.getX();
+        double pitch = rotation.getY();
+
+        double lookX = position.getX() + Math.cos(pitch) * Math.sin(yaw);
+        double lookY = position.getY() + Math.sin(pitch);
+        double lookZ = position.getZ() + Math.cos(pitch) * Math.cos(yaw);
+
+        return new Vector3D(lookX, lookY, lookZ);
+    }
+
+    public Matrix4d getViewMatrix() {
+        Vector3D lookAt = getLookAtPoint();
+
+        return new Matrix4d()
+                .lookAt(
+                        position.getX(), position.getY(), position.getZ(),
+                        lookAt.getX(), lookAt.getY(), lookAt.getZ(),
+                        0, 1, 0
+                );
+    }
+
+    public Matrix4d getProjectionMatrix(int screenWidth, int screenHeight) {
+        double aspectRatio = (double) screenWidth / screenHeight;
+
+        return new Matrix4d().perspective(FOV, aspectRatio, NEAR_PLANE, FAR_PLANE);
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+}
