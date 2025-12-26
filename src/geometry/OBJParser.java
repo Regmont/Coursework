@@ -17,6 +17,7 @@ public class OBJParser {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
+
             while ((line = br.readLine()) != null) {
                 line = line.trim();
 
@@ -27,11 +28,13 @@ public class OBJParser {
                         double x = Double.parseDouble(parts[1]);
                         double y = Double.parseDouble(parts[2]);
                         double z = Double.parseDouble(parts[3]);
+
                         vertices.add(new Vector3D(x, y, z));
                     }
                     case "vt" -> {
                         double u = Double.parseDouble(parts[1]);
                         double v = Double.parseDouble(parts[2]);
+
                         texCoords.add(new Point2D.Double(u, v));
                     }
                     case "f" -> {

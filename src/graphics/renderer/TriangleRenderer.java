@@ -1,6 +1,7 @@
 package graphics.renderer;
 
 import geometry.*;
+import graphics.light.AmbienceLight;
 import math.Vector3D;
 import graphics.utils.GeometryUtils;
 
@@ -9,10 +10,12 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 public class TriangleRenderer {
-    public static void renderTriangle(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
-                               int width, int height) {
+    public static AmbienceLight ambienceLight = new AmbienceLight(0.5, Color.WHITE);
+
+    public static void renderTriangles(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
+                                       int width, int height) {
         for (Mesh mesh : meshes) {
-            for (Triangle triangle : mesh.getTriangles()) {
+            for (Triangle triangle : mesh.triangles()) {
                 if (!triangle.isVisibleFromCameraCenter()) {
                     continue;
                 }
@@ -43,12 +46,17 @@ public class TriangleRenderer {
                             depthBuffer[x][y] = depth;
 
                             Material material = triangle.getMaterial();
+                            Color pixelColor;
 
                             if (material.hasTexture() && triangle.hasUV()) {
-                                colorBuffer[x][y] = getTextureColor(centerX, centerY, triangle);
+                                pixelColor = getTextureColor(centerX, centerY, triangle);
                             } else {
-                                colorBuffer[x][y] = material.getColor();
+                                pixelColor = material.getColor();
                             }
+
+                            pixelColor = ambienceLight.applyAmbienceLightToTriangles(pixelColor);
+
+                            colorBuffer[x][y] = pixelColor;
                         }
                     }
                 }
@@ -69,19 +77,16 @@ public class TriangleRenderer {
         double z2 = B.getZ();
         double z3 = C.getZ();
 
-        double denom = (B.getY() - C.getY()) * (A.getX() - C.getX()) +
-                (C.getX() - B.getX()) * (A.getY() - C.getY());
+        double denom = (B.getY() - C.getY()) * (A.getX() - C.getX()) + (C.getX() - B.getX()) * (A.getY() - C.getY());
 
-        double alpha = ((B.getY() - C.getY()) * (x - C.getX()) +
-                (C.getX() - B.getX()) * (y - C.getY())) / denom;
-        double beta = ((C.getY() - A.getY()) * (x - C.getX()) +
-                (A.getX() - C.getX()) * (y - C.getY())) / denom;
+        double alpha = ((B.getY() - C.getY()) * (x - C.getX()) + (C.getX() - B.getX()) * (y - C.getY())) / denom;
+        double beta = ((C.getY() - A.getY()) * (x - C.getX()) + (A.getX() - C.getX()) * (y - C.getY())) / denom;
         double gamma = 1 - alpha - beta;
 
         double interpolatedInvZ = alpha * (1.0/z1) + beta * (1.0/z2) + gamma * (1.0/z3);
 
-        double uOverZ = alpha * (uv1.getX()/z1) + beta * (uv2.getX()/z2) + gamma * (uv3.getX()/z3);
-        double vOverZ = alpha * (uv1.getY()/z1) + beta * (uv2.getY()/z2) + gamma * (uv3.getY()/z3);
+        double uOverZ = alpha * (uv1.getX() / z1) + beta * (uv2.getX() / z2) + gamma * (uv3.getX() / z3);
+        double vOverZ = alpha * (uv1.getY() / z1) + beta * (uv2.getY() / z2) + gamma * (uv3.getY() / z3);
 
         double u = uOverZ / interpolatedInvZ;
         double v = vOverZ / interpolatedInvZ;

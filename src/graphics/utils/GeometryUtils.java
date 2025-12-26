@@ -6,7 +6,7 @@ import math.Vector3D;
 import java.util.List;
 
 public class GeometryUtils {
-    public static final double EPSILON = 1e-9;
+    private static final double EPSILON = 1e-9;
 
     public static boolean isPointInTriangle(double px, double py, Triangle triangle) {
         List<Vector3D> points = triangle.getPoints();

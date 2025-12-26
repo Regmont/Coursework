@@ -2,20 +2,7 @@ package geometry;
 
 import java.util.*;
 
-public class Mesh {
-    private List<Triangle> triangles = new ArrayList<>();
-
-    public Mesh(List<Triangle> triangles) {
-        this.triangles = triangles;
-    }
-
-    public List<Triangle> getTriangles() {
-        return triangles;
-    }
-
-    public void setTriangles(List<Triangle> triangles) {
-        this.triangles = triangles;
-    }
+public record Mesh(List<Triangle> triangles) {
 
     @Override
     public String toString() {

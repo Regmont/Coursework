@@ -14,7 +14,7 @@ public class MainRenderer {
 
         clearBuffers(colorBuffer, depthBuffer, backgroundColor);
 
-        TriangleRenderer.renderTriangle(meshes, colorBuffer, depthBuffer, width, height);
+        TriangleRenderer.renderTriangles(meshes, colorBuffer, depthBuffer, width, height);
     }
 
     public static void clearBuffers(Color[][] colorBuffer, double[][] depthBuffer, Color backgroundColor) {

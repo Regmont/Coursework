@@ -96,11 +96,9 @@ public class GameController {
         if (mouse.isCaptured()) {
             int deltaX = mouse.getDeltaX();
             int deltaY = mouse.getDeltaY();
+
             if (deltaX != 0 || deltaY != 0) {
-                camera.addRotation(
-                        -deltaX * mouseSensitivity,
-                        -deltaY * mouseSensitivity
-                );
+                camera.addRotation(-deltaX * mouseSensitivity, -deltaY * mouseSensitivity);
             }
         }
 

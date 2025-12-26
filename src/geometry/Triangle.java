@@ -34,11 +34,12 @@ public class Triangle {
         this.normal = null;
     }
 
-    public Triangle(Vector3D point1, Vector3D point2, Vector3D point3, Point2D uv1, Point2D uv2, Point2D uv3) {
+    public Triangle(Vector3D point1, Vector3D point2, Vector3D point3,
+                    Point2D uv1, Point2D uv2, Point2D uv3) {
         this.point1 = point1;
         this.point2 = point2;
         this.point3 = point3;
-        this.material = Material.getDefaultMaterial();
+        this.material = Material.defaultMaterial;
         this.originalPoints = new Vector3D[]{point1, point2, point3};
         this.uv1 = uv1;
         this.uv2 = uv2;
@@ -56,9 +57,11 @@ public class Triangle {
 
     public ArrayList<Vector3D> getPoints() {
         ArrayList<Vector3D> points = new ArrayList<>();
+
         points.add(point1);
         points.add(point2);
         points.add(point3);
+
         return points;
     }
 
@@ -84,12 +87,30 @@ public class Triangle {
                 (int)Math.floor(minX), (int)Math.ceil(maxX),
                 (int)Math.floor(minY), (int)Math.ceil(maxY)
         );
+
         boundingBoxDirty = false;
 
         return boundingBox;
     }
 
-    public Vector3D calculateNormal() {
+    public boolean isVisibleFromCameraCenter() {
+        return calculateNormal().getZ() < 0;
+    }
+
+    public Vector3D[] getOriginalPoints() {
+        return originalPoints;
+    }
+
+    public boolean hasOriginalPoints() {
+        return originalPoints != null;
+    }
+
+    @Override
+    public String toString() {
+        return point1 + " " + point2 + " " + point3;
+    }
+
+    private Vector3D calculateNormal() {
         if (normal != null) {
             return new Vector3D(normal);
         }
@@ -116,22 +137,5 @@ public class Triangle {
         normal = new Vector3D(nx, ny, nz);
 
         return new Vector3D(normal);
-    }
-
-    public boolean isVisibleFromCameraCenter() {
-        return calculateNormal().getZ() < 0;
-    }
-
-    public Vector3D[] getOriginalPoints() {
-        return originalPoints;
-    }
-
-    public boolean hasOriginalPoints() {
-        return originalPoints != null;
-    }
-
-    @Override
-    public String toString() {
-        return point1 + " " + point2 + " " + point3;
     }
 }

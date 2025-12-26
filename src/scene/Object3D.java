@@ -25,7 +25,7 @@ public class Object3D {
             BufferedImage texture = ImageIO.read(new File(texturePath));
             Material material = new Material(texture);
 
-            for (Triangle triangle : mesh.getTriangles()) {
+            for (Triangle triangle : mesh.triangles()) {
                 triangle.setMaterial(material);
             }
 

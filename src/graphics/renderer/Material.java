@@ -4,7 +4,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Material {
-    private static final Material defaultMaterial = new Material(Color.WHITE);
+    public static final Material defaultMaterial = new Material(Color.WHITE);
+
     private final Color color;
     private final BufferedImage texture;
 
@@ -28,9 +29,5 @@ public class Material {
 
     public boolean hasTexture() {
         return texture != null;
-    }
-
-    public static Material getDefaultMaterial() {
-        return defaultMaterial;
     }
 }

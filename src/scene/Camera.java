@@ -41,26 +41,13 @@ public class Camera {
         rotation = new Vector3D(newYaw, newPitch, rotation.getZ());
     }
 
-    public Vector3D getLookAtPoint() {
-        double yaw = rotation.getX();
-        double pitch = rotation.getY();
-
-        double lookX = position.getX() + Math.cos(pitch) * Math.sin(yaw);
-        double lookY = position.getY() + Math.sin(pitch);
-        double lookZ = position.getZ() + Math.cos(pitch) * Math.cos(yaw);
-
-        return new Vector3D(lookX, lookY, lookZ);
-    }
-
     public Matrix4d getViewMatrix() {
         Vector3D lookAt = getLookAtPoint();
 
-        return new Matrix4d()
-                .lookAt(
+        return new Matrix4d().lookAt(
                         position.getX(), position.getY(), position.getZ(),
                         lookAt.getX(), lookAt.getY(), lookAt.getZ(),
-                        0, 1, 0
-                );
+                        0, 1, 0);
     }
 
     public Matrix4d getProjectionMatrix(int screenWidth, int screenHeight) {
@@ -71,5 +58,16 @@ public class Camera {
 
     public double getSpeed() {
         return speed;
+    }
+
+    private Vector3D getLookAtPoint() {
+        double yaw = rotation.getX();
+        double pitch = rotation.getY();
+
+        double lookX = position.getX() + Math.cos(pitch) * Math.sin(yaw);
+        double lookY = position.getY() + Math.sin(pitch);
+        double lookZ = position.getZ() + Math.cos(pitch) * Math.cos(yaw);
+
+        return new Vector3D(lookX, lookY, lookZ);
     }
 }

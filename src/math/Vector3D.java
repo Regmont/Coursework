@@ -1,8 +1,8 @@
 package math;
 
 public class Vector3D {
-    public static Vector3D zeroVector = new Vector3D(0, 0, 0);
-    public static Vector3D unitVector = new Vector3D(1, 1, 1);
+    public static final Vector3D zeroVector = new Vector3D(0, 0, 0);
+    public static final Vector3D unitVector = new Vector3D(1, 1, 1);
 
     private final double x;
     private final double y;

@@ -17,9 +17,8 @@ public class SceneTransformer {
         return projMatrix.mul(viewMatrix).mul(modelMatrix);
     }
 
-    public static Mesh transformMesh(Mesh mesh, Matrix4d transformMatrix,
-                                     int screenWidth, int screenHeight) {
-        List<Triangle> originalTriangles = mesh.getTriangles();
+    public static Mesh transformMesh(Mesh mesh, Matrix4d transformMatrix, int screenWidth, int screenHeight) {
+        List<Triangle> originalTriangles = mesh.triangles();
         ArrayList<Triangle> transformedTriangles = new ArrayList<>();
 
         for (Triangle triangle : originalTriangles) {
@@ -27,8 +26,7 @@ public class SceneTransformer {
             Vector3D[] transformedPoints = new Vector3D[3];
 
             for (int i = 0; i < 3; i++) {
-                transformedPoints[i] = applyMatrix(transformMatrix, points.get(i),
-                        screenWidth, screenHeight);
+                transformedPoints[i] = applyMatrix(transformMatrix, points.get(i), screenWidth, screenHeight);
             }
 
             Vector3D[] originalPoints = triangle.hasOriginalPoints() ?
@@ -49,14 +47,10 @@ public class SceneTransformer {
             transformedTriangles.add(transformedTriangle);
         }
 
-        Mesh transformedMesh = new Mesh(transformedTriangles);
-        transformedMesh.setTriangles(transformedTriangles);
-
-        return transformedMesh;
+        return new Mesh(transformedTriangles);
     }
 
-    private static Vector3D applyMatrix(Matrix4d mvp, Vector3D point,
-                                        int screenWidth, int screenHeight) {
+    private static Vector3D applyMatrix(Matrix4d mvp, Vector3D point, int screenWidth, int screenHeight) {
         Vector4d vec = new Vector4d(point.getX(), point.getY(), point.getZ(), 1.0f);
         vec = mvp.transform(vec);
 

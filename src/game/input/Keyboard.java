@@ -33,8 +33,8 @@ public class Keyboard {
     }
 
     public boolean isWPressed() { return wPressed; }
-    public boolean isSPressed() { return sPressed; }
     public boolean isAPressed() { return aPressed; }
+    public boolean isSPressed() { return sPressed; }
     public boolean isDPressed() { return dPressed; }
     public boolean isEscapePressed() { return escapePressed; }
 

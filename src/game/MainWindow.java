@@ -2,6 +2,7 @@ package game;
 
 import geometry.Mesh;
 import graphics.SceneSystem;
+import graphics.light.SkyLight;
 import graphics.renderer.MainRenderer;
 
 import java.awt.*;
@@ -11,19 +12,22 @@ import java.awt.image.DataBufferInt;
 import java.util.List;
 
 public class MainWindow extends Frame {
-    private static final Color BACKGROUND_COLOR = Color.GRAY;
+    private final SkyLight skyLight;
     private final SceneSystem sceneSystem;
 
     private Color[][] colorBuffer;
     private double[][] depthBuffer;
     private BufferedImage image;
 
-    public MainWindow(SceneSystem sceneSystem, String title, int width, int height) {
+    public MainWindow(SceneSystem sceneSystem, String title, int width, int height,
+                      Color bgColor, double bgBrightness) {
         this.sceneSystem = sceneSystem;
 
         setTitle(title);
         setSize(width, height);
         setLocationRelativeTo(null);
+
+        skyLight = new SkyLight(bgColor, bgBrightness);
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -43,10 +47,10 @@ public class MainWindow extends Frame {
             image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
 
-        MainRenderer.clearBuffers(colorBuffer, depthBuffer, BACKGROUND_COLOR);
+        MainRenderer.clearBuffers(colorBuffer, depthBuffer, skyLight.getSkyColor());
 
         List<Mesh> meshes = sceneSystem.getTransformedMeshes(width, height);
-        MainRenderer.renderScene(meshes, colorBuffer, depthBuffer, BACKGROUND_COLOR);
+        MainRenderer.renderScene(meshes, colorBuffer, depthBuffer, skyLight.getSkyColor());
 
         copyColorBufferToImage(width, height);
 
@@ -60,7 +64,7 @@ public class MainWindow extends Frame {
 
     private void copyColorBufferToImage(int width, int height) {
         int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        int backgroundRGB = BACKGROUND_COLOR.getRGB();
+        int backgroundRGB = skyLight.getSkyColor().getRGB();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
