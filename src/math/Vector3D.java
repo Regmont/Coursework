@@ -32,6 +32,44 @@ public class Vector3D {
         return z;
     }
 
+    public double dot(Vector3D other) {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    public Vector3D cross(Vector3D other) {
+        double nx = y * other.z - z * other.y;
+        double ny = z * other.x - x * other.z;
+        double nz = x * other.y - y * other.x;
+
+        return new Vector3D(nx, ny, nz);
+    }
+
+    public Vector3D subtract(Vector3D other) {
+        return new Vector3D(x - other.x, y - other.y, z - other.z);
+    }
+
+    public Vector3D add(Vector3D other) {
+        return new Vector3D(x + other.x, y + other.y, z + other.z);
+    }
+
+    public Vector3D multiply(double scalar) {
+        return new Vector3D(x * scalar, y * scalar, z * scalar);
+    }
+
+    public Vector3D normalize() {
+        double length = Math.sqrt(x * x + y * y + z * z);
+
+        if (length == 0) {
+            return this;
+        }
+
+        return new Vector3D(x / length, y / length, z / length);
+    }
+
+    public double length() {
+        return Math.sqrt(x * x + y * y + z * z);
+    }
+
     @Override
     public String toString() {
         return "(x = " + x + ", y = " + y + ", z = " + z + ")";

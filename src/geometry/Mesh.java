@@ -1,8 +1,16 @@
 package geometry;
 
+import graphics.renderer.Material;
+
 import java.util.*;
 
 public record Mesh(List<Triangle> triangles) {
+
+    public void setMaterial(Material material) {
+        for (Triangle triangle : triangles) {
+            triangle.setMaterial(material);
+        }
+    }
 
     @Override
     public String toString() {

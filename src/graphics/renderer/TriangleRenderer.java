@@ -2,6 +2,7 @@ package graphics.renderer;
 
 import geometry.*;
 import graphics.light.AmbienceLight;
+import graphics.light.PointLight;
 import math.Vector3D;
 import graphics.utils.GeometryUtils;
 
@@ -12,53 +13,72 @@ import java.util.List;
 public class TriangleRenderer {
     public static AmbienceLight ambienceLight = new AmbienceLight(0.5, Color.WHITE);
 
+    private static final int CELL_SIZE = 16;
+
+    private static SpatialGrid spatialGrid;
+    private static int lastWidth = -1;
+    private static int lastHeight = -1;
+
     public static void renderTriangles(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
-                                       int width, int height) {
+                                       int width, int height, List<PointLight> pointLights) {
+        if (spatialGrid == null || width != lastWidth || height != lastHeight) {
+            spatialGrid = new SpatialGrid(width, height, CELL_SIZE);
+            lastWidth = width;
+            lastHeight = height;
+        }
+
+        spatialGrid.clear();
         for (Mesh mesh : meshes) {
             for (Triangle triangle : mesh.triangles()) {
-                if (!triangle.isVisibleFromCameraCenter()) {
+                spatialGrid.addTriangle(triangle);
+            }
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                List<Triangle> trianglesInCell = spatialGrid.getTriangles(x, y);
+
+                if (trianglesInCell.isEmpty()) {
                     continue;
                 }
 
-                BoundingBox boundingBox = triangle.getBoundingBox();
+                double centerX = x + 0.5;
+                double centerY = y + 0.5;
+                double closestDepth = Double.POSITIVE_INFINITY;
+                Color closestColor = null;
 
-                int minX = Math.max(0, boundingBox.minX());
-                int maxX = Math.min(width - 1, boundingBox.maxX());
-                int minY = Math.max(0, boundingBox.minY());
-                int maxY = Math.min(height - 1, boundingBox.maxY());
-
-                if (minX > maxX || minY > maxY) {
-                    continue;
-                }
-
-                for (int y = minY; y <= maxY; y++) {
-                    for (int x = minX; x <= maxX; x++) {
-                        double centerX = x + 0.5;
-                        double centerY = y + 0.5;
-
-                        if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
-                            continue;
-                        }
-
-                        double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
-
-                        if (depth < depthBuffer[x][y]) {
-                            depthBuffer[x][y] = depth;
-
-                            Material material = triangle.getMaterial();
-                            Color pixelColor;
-
-                            if (material.hasTexture() && triangle.hasUV()) {
-                                pixelColor = getTextureColor(centerX, centerY, triangle);
-                            } else {
-                                pixelColor = material.getColor();
-                            }
-
-                            pixelColor = ambienceLight.applyAmbienceLightToTriangles(pixelColor);
-
-                            colorBuffer[x][y] = pixelColor;
-                        }
+                for (Triangle triangle : trianglesInCell) {
+                    if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
+                        continue;
                     }
+
+                    double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
+
+                    if (depth < closestDepth) {
+                        closestDepth = depth;
+
+                        Material material = triangle.getMaterial();
+                        Color pixelColor;
+
+                        if (material.hasTexture() && triangle.hasUV()) {
+                            pixelColor = getTextureColor(centerX, centerY, triangle);
+                        } else {
+                            pixelColor = material.getColor();
+                        }
+
+                        pixelColor = ambienceLight.applyAmbienceLightToTriangles(pixelColor);
+
+                        for (PointLight pointLight : pointLights) {
+                            pixelColor = pointLight.applyLightToTriangle(pixelColor, triangle);
+                        }
+
+                        closestColor = pixelColor;
+                    }
+                }
+
+                if (closestColor != null && closestDepth < depthBuffer[x][y]) {
+                    depthBuffer[x][y] = closestDepth;
+                    colorBuffer[x][y] = closestColor;
                 }
             }
         }

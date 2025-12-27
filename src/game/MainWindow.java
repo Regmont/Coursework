@@ -2,6 +2,7 @@ package game;
 
 import geometry.Mesh;
 import graphics.SceneSystem;
+import graphics.light.PointLight;
 import graphics.light.SkyLight;
 import graphics.renderer.MainRenderer;
 
@@ -50,7 +51,9 @@ public class MainWindow extends Frame {
         MainRenderer.clearBuffers(colorBuffer, depthBuffer, skyLight.getSkyColor());
 
         List<Mesh> meshes = sceneSystem.getTransformedMeshes(width, height);
-        MainRenderer.renderScene(meshes, colorBuffer, depthBuffer, skyLight.getSkyColor());
+        List<PointLight> pointLights = sceneSystem.getPointLights();
+
+        MainRenderer.renderScene(meshes, colorBuffer, depthBuffer, skyLight.getSkyColor(), pointLights);
 
         copyColorBufferToImage(width, height);
 

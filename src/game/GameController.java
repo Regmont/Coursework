@@ -18,6 +18,7 @@ public class GameController {
     private final double frameTimeMs;
     private volatile boolean running;
     private Thread gameThread;
+    private boolean inputProcessedThisFrame = false;
 
     public GameController(Camera camera, MainWindow window, int targetFps, double mouseSensitivity) {
         this.camera = camera;
@@ -60,6 +61,8 @@ public class GameController {
 
             accumulator += elapsedMs;
 
+            inputProcessedThisFrame = false;
+
             while (accumulator >= frameTimeMs) {
                 update(frameTimeMs / 1000.0);
                 accumulator -= frameTimeMs;
@@ -80,6 +83,10 @@ public class GameController {
     }
 
     private void update(double deltaTime) {
+        if (inputProcessedThisFrame) {
+            return;
+        }
+
         Keyboard keyboard = inputSystem.getKeyboard();
         Mouse mouse = inputSystem.getMouse();
 
@@ -89,7 +96,6 @@ public class GameController {
             } else {
                 mouse.capture();
             }
-
             keyboard.resetEscape();
         }
 
@@ -107,6 +113,7 @@ public class GameController {
         }
 
         inputSystem.update();
+        inputProcessedThisFrame = true;
     }
 
     private void updateCameraPosition(double deltaTime) {

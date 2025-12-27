@@ -14,7 +14,8 @@ public class Triangle {
     private final Point2D uv1;
     private final Point2D uv2;
     private final Point2D uv3;
-    private Vector3D normal;
+    private Vector3D cameraNormal;
+    private Vector3D worldNormal;
     private final Vector3D[] originalPoints;
 
     private BoundingBox boundingBox = null;
@@ -31,7 +32,11 @@ public class Triangle {
         this.uv1 = uv1;
         this.uv2 = uv2;
         this.uv3 = uv3;
-        this.normal = null;
+        this.cameraNormal = null;
+
+        if (originalPoints != null && originalPoints.length == 3) {
+            this.worldNormal = calculateWorldNormal();
+        }
     }
 
     public Triangle(Vector3D point1, Vector3D point2, Vector3D point3,
@@ -44,7 +49,7 @@ public class Triangle {
         this.uv1 = uv1;
         this.uv2 = uv2;
         this.uv3 = uv3;
-        this.normal = null;
+        this.cameraNormal = null;
     }
 
     public Material getMaterial() {
@@ -94,7 +99,7 @@ public class Triangle {
     }
 
     public boolean isVisibleFromCameraCenter() {
-        return calculateNormal().getZ() < 0;
+        return calculateCameraNormal().getZ() < 0;
     }
 
     public Vector3D[] getOriginalPoints() {
@@ -105,14 +110,18 @@ public class Triangle {
         return originalPoints != null;
     }
 
+    public Vector3D getWorldNormal() {
+        return worldNormal != null ? new Vector3D(worldNormal) : calculateCameraNormal();
+    }
+
     @Override
     public String toString() {
         return point1 + " " + point2 + " " + point3;
     }
 
-    private Vector3D calculateNormal() {
-        if (normal != null) {
-            return new Vector3D(normal);
+    private Vector3D calculateCameraNormal() {
+        if (cameraNormal != null) {
+            return new Vector3D(cameraNormal);
         }
 
         double v1x = point2.getX() - point1.getX();
@@ -134,8 +143,39 @@ public class Triangle {
             nz /= length;
         }
 
-        normal = new Vector3D(nx, ny, nz);
+        cameraNormal = new Vector3D(nx, ny, nz);
 
-        return new Vector3D(normal);
+        return new Vector3D(cameraNormal);
+    }
+
+    private Vector3D calculateWorldNormal() {
+        if (originalPoints == null || originalPoints.length < 3) {
+            return null;
+        }
+
+        Vector3D p1 = originalPoints[0];
+        Vector3D p2 = originalPoints[1];
+        Vector3D p3 = originalPoints[2];
+
+        double v1x = p2.getX() - p1.getX();
+        double v1y = p2.getY() - p1.getY();
+        double v1z = p2.getZ() - p1.getZ();
+
+        double v2x = p3.getX() - p1.getX();
+        double v2y = p3.getY() - p1.getY();
+        double v2z = p3.getZ() - p1.getZ();
+
+        double nx = v1y * v2z - v1z * v2y;
+        double ny = v1z * v2x - v1x * v2z;
+        double nz = v1x * v2y - v1y * v2x;
+
+        double length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        if (length > 0) {
+            nx /= length;
+            ny /= length;
+            nz /= length;
+        }
+
+        return new Vector3D(nx, ny, nz);
     }
 }
