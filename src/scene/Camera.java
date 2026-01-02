@@ -1,23 +1,25 @@
 package scene;
 
+import game.configuration.GameConfig;
+import game.configuration.RenderingConfig;
 import math.Vector3D;
 import org.joml.Matrix4d;
 
 public class Camera {
-    private static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
-    private static final double MIN_PITCH = -Math.PI / 2.0 + 0.01; // -89.99°
-    private static final double FOV = Math.PI / 3; // 60°
-    private static final double NEAR_PLANE = 0.1;
-    private static final double FAR_PLANE = 100.0;
-
     private Vector3D position;
     private Vector3D rotation;
     private final double speed;
 
-    public Camera(Vector3D position, Vector3D rotation, double speed) {
+    public Camera() {
+        this.position = GameConfig.INITIAL_CAMERA_POSITION;
+        this.rotation = GameConfig.INITIAL_CAMERA_ROTATION;
+        this.speed = GameConfig.CAMERA_SPEED;
+    }
+
+    public Camera(Vector3D position, Vector3D rotation) {
         this.position = position;
         this.rotation = rotation;
-        this.speed = speed;
+        this.speed = 0;
     }
 
     public Vector3D getPosition() {
@@ -36,7 +38,7 @@ public class Camera {
         double newYaw = rotation.getX() + deltaYaw;
         double newPitch = rotation.getY() + deltaPitch;
 
-        newPitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, newPitch));
+        newPitch = Math.max(RenderingConfig.MIN_PITCH, Math.min(RenderingConfig.MAX_PITCH, newPitch));
 
         rotation = new Vector3D(newYaw, newPitch, rotation.getZ());
     }
@@ -53,7 +55,8 @@ public class Camera {
     public Matrix4d getProjectionMatrix(int screenWidth, int screenHeight) {
         double aspectRatio = (double) screenWidth / screenHeight;
 
-        return new Matrix4d().perspective(FOV, aspectRatio, NEAR_PLANE, FAR_PLANE);
+        return new Matrix4d().perspective(RenderingConfig.FOV, aspectRatio, RenderingConfig.NEAR_PLANE,
+                RenderingConfig.FAR_PLANE);
     }
 
     public double getSpeed() {

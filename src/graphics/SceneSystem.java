@@ -40,4 +40,8 @@ public class SceneSystem {
     public List<PointLight> getPointLights() {
         return lights;
     }
+
+    public List<ObjectInstance> getInstances() {
+        return instances;
+    }
 }

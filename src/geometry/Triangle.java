@@ -17,13 +17,16 @@ public class Triangle {
     private Vector3D cameraNormal;
     private Vector3D worldNormal;
     private final Vector3D[] originalPoints;
-
+    private final double invW1;
+    private final double invW2;
+    private final double invW3;
     private BoundingBox boundingBox = null;
     private boolean boundingBoxDirty = true;
 
     public Triangle(Vector3D point1, Vector3D point2, Vector3D point3,
                     Material material, Vector3D[] originalPoints,
-                    Point2D uv1, Point2D uv2, Point2D uv3) {
+                    Point2D uv1, Point2D uv2, Point2D uv3,
+                    double invW1, double invW2, double invW3) {
         this.point1 = point1;
         this.point2 = point2;
         this.point3 = point3;
@@ -33,6 +36,9 @@ public class Triangle {
         this.uv2 = uv2;
         this.uv3 = uv3;
         this.cameraNormal = null;
+        this.invW1 = invW1;
+        this.invW2 = invW2;
+        this.invW3 = invW3;
 
         if (originalPoints != null && originalPoints.length == 3) {
             this.worldNormal = calculateWorldNormal();
@@ -44,12 +50,15 @@ public class Triangle {
         this.point1 = point1;
         this.point2 = point2;
         this.point3 = point3;
-        this.material = Material.defaultMaterial;
+        this.material = Material.DEFAULT_MATERIAL;
         this.originalPoints = new Vector3D[]{point1, point2, point3};
         this.uv1 = uv1;
         this.uv2 = uv2;
         this.uv3 = uv3;
         this.cameraNormal = null;
+        this.invW1 = 1;
+        this.invW2 = 1;
+        this.invW3 = 1;
     }
 
     public Material getMaterial() {
@@ -112,6 +121,26 @@ public class Triangle {
 
     public Vector3D getWorldNormal() {
         return worldNormal != null ? new Vector3D(worldNormal) : calculateCameraNormal();
+    }
+
+    public Vector3D getCenter() {
+        return new Vector3D(
+                (originalPoints[0].getX() + originalPoints[1].getX() + originalPoints[2].getX()) / 3.0,
+                (originalPoints[0].getY() + originalPoints[1].getY() + originalPoints[2].getY()) / 3.0,
+                (originalPoints[0].getZ() + originalPoints[1].getZ() + originalPoints[2].getZ()) / 3.0
+        );
+    }
+
+    public double getInvW1() {
+        return invW1;
+    }
+
+    public double getInvW2() {
+        return invW2;
+    }
+
+    public double getInvW3() {
+        return invW3;
     }
 
     @Override

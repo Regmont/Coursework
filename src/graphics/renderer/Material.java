@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Material {
-    public static final Material defaultMaterial = new Material(Color.WHITE);
+    public static final Material DEFAULT_MATERIAL = new Material(Color.WHITE);
 
     private final Color color;
     private final BufferedImage texture;

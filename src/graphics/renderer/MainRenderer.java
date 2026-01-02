@@ -1,6 +1,7 @@
 package graphics.renderer;
 
 import geometry.*;
+import graphics.SceneSystem;
 import graphics.light.PointLight;
 
 import java.awt.*;
@@ -8,17 +9,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainRenderer {
-    public static void renderScene(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
-                            Color backgroundColor, List<PointLight> pointLights) {
+    public static void renderScene(Color[][] colorBuffer, double[][] depthBuffer,
+                                   Color backgroundColor, SceneSystem sceneSystem) {
+        clearBuffers(colorBuffer, depthBuffer, backgroundColor);
+
         int width = colorBuffer.length;
         int height = colorBuffer[0].length;
 
-        clearBuffers(colorBuffer, depthBuffer, backgroundColor);
+        List<Mesh> meshes = sceneSystem.getTransformedMeshes(width, height);
+        List<PointLight> pointLights = sceneSystem.getPointLights();
 
+        ShadowRenderer.renderShadowMaps(pointLights, sceneSystem.getInstances());
         TriangleRenderer.renderTriangles(meshes, colorBuffer, depthBuffer, width, height, pointLights);
     }
 
-    public static void clearBuffers(Color[][] colorBuffer, double[][] depthBuffer, Color backgroundColor) {
+    private static void clearBuffers(Color[][] colorBuffer, double[][] depthBuffer, Color backgroundColor) {
         for (double[] row : depthBuffer) {
             Arrays.fill(row, Double.POSITIVE_INFINITY);
         }

@@ -11,13 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SceneTransformer {
-    public static Matrix4d createMVPMatrix(Camera camera, Matrix4d modelMatrix, int screenWidth, int screenHeight) {
-        Matrix4d viewMatrix = camera.getViewMatrix();
-        Matrix4d projMatrix = camera.getProjectionMatrix(screenWidth, screenHeight);
-
-        return projMatrix.mul(viewMatrix).mul(modelMatrix);
-    }
-
     public static Mesh transformMesh(Mesh mesh, Matrix4d modelMatrix, Camera camera,
                                      int screenWidth, int screenHeight) {
         List<Triangle> originalTriangles = mesh.triangles();
@@ -30,9 +23,29 @@ public class SceneTransformer {
         for (Triangle triangle : originalTriangles) {
             ArrayList<Vector3D> points = triangle.getPoints();
             Vector3D[] transformedPoints = new Vector3D[3];
+            double[] invW = new double[3];
 
             for (int i = 0; i < 3; i++) {
-                transformedPoints[i] = applyMatrix(mvpMatrix, points.get(i), screenWidth, screenHeight);
+                Vector4d vec = new Vector4d(points.get(i).getX(),
+                        points.get(i).getY(),
+                        points.get(i).getZ(), 1.0);
+                vec = mvpMatrix.transform(vec);
+
+                if (vec.w <= 0.0) {
+                    transformedPoints[i] = new Vector3D(Double.NaN, Double.NaN, Double.NaN);
+                    invW[i] = 0;
+                } else {
+                    invW[i] = 1.0 / vec.w;
+
+                    vec.x /= vec.w;
+                    vec.y /= vec.w;
+                    vec.z /= vec.w;
+
+                    double screenX = (vec.x + 1.0) * screenWidth / 2.0;
+                    double screenY = (1.0 - vec.y) * screenHeight / 2.0;
+
+                    transformedPoints[i] = new Vector3D(screenX, screenY, vec.z);
+                }
             }
 
             Vector3D[] worldPoints;
@@ -56,33 +69,17 @@ public class SceneTransformer {
                     worldPoints,
                     triangle.getUV1(),
                     triangle.getUV2(),
-                    triangle.getUV3()
+                    triangle.getUV3(),
+                    invW[0],
+                    invW[1],
+                    invW[2]
             );
 
             transformedTriangle.getWorldNormal();
-
             transformedTriangles.add(transformedTriangle);
         }
 
         return new Mesh(transformedTriangles);
-    }
-
-    private static Vector3D applyMatrix(Matrix4d mvp, Vector3D point, int screenWidth, int screenHeight) {
-        Vector4d vec = new Vector4d(point.getX(), point.getY(), point.getZ(), 1.0);
-        vec = mvp.transform(vec);
-
-        if (vec.w <= 0.0) {
-            return new Vector3D(Double.NaN, Double.NaN, Double.NaN);
-        }
-
-        vec.x /= vec.w;
-        vec.y /= vec.w;
-        vec.z /= vec.w;
-
-        double screenX = (vec.x + 1.0) * screenWidth / 2.0;
-        double screenY = (1.0 - vec.y) * screenHeight / 2.0;
-
-        return new Vector3D(screenX, screenY, vec.z);
     }
 
     private static Vector3D applyWorldMatrix(Matrix4d modelMatrix, Vector3D point) {

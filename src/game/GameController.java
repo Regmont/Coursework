@@ -1,5 +1,7 @@
 package game;
 
+import game.configuration.AppConfig;
+import game.configuration.GameConfig;
 import game.input.InputSystem;
 import game.input.Keyboard;
 import game.input.Mouse;
@@ -9,23 +11,19 @@ import scene.Camera;
 import java.awt.*;
 
 public class GameController {
-    private static final double DIAGONAL_FACTOR = Math.sqrt(2) / 2;
-
     private final Camera camera;
     private final MainWindow window;
     private final InputSystem inputSystem;
-    private final double mouseSensitivity;
     private final double frameTimeMs;
     private volatile boolean running;
     private Thread gameThread;
-    private boolean inputProcessedThisFrame = false;
+    private boolean cameraMoved = false;
 
-    public GameController(Camera camera, MainWindow window, int targetFps, double mouseSensitivity) {
+    public GameController(Camera camera, MainWindow window) {
         this.camera = camera;
         this.window = window;
         this.inputSystem = new InputSystem(window);
-        this.frameTimeMs = 1000.0 / targetFps;
-        this.mouseSensitivity = mouseSensitivity;
+        this.frameTimeMs = 1000.0 / AppConfig.TARGET_FPS;
     }
 
     public void startGameLoop() {
@@ -61,14 +59,15 @@ public class GameController {
 
             accumulator += elapsedMs;
 
-            inputProcessedThisFrame = false;
-
             while (accumulator >= frameTimeMs) {
                 update(frameTimeMs / 1000.0);
                 accumulator -= frameTimeMs;
             }
 
-            EventQueue.invokeLater(window::repaint);
+            if (cameraMoved) {
+                EventQueue.invokeLater(window::repaint);
+                cameraMoved = false;
+            }
 
             long sleepTimeMs = (long)(frameTimeMs - (System.nanoTime() - lastTime) / 1_000_000.0);
             if (sleepTimeMs > 0) {
@@ -83,10 +82,6 @@ public class GameController {
     }
 
     private void update(double deltaTime) {
-        if (inputProcessedThisFrame) {
-            return;
-        }
-
         Keyboard keyboard = inputSystem.getKeyboard();
         Mouse mouse = inputSystem.getMouse();
 
@@ -104,16 +99,18 @@ public class GameController {
             int deltaY = mouse.getDeltaY();
 
             if (deltaX != 0 || deltaY != 0) {
-                camera.addRotation(-deltaX * mouseSensitivity, -deltaY * mouseSensitivity);
+                camera.addRotation(-deltaX * GameConfig.MOUSE_SENSITIVITY,
+                        -deltaY * GameConfig.MOUSE_SENSITIVITY);
+                cameraMoved = true;
             }
         }
 
         if (keyboard.isAnyMovementPressed()) {
             updateCameraPosition(deltaTime);
+            cameraMoved = true;
         }
 
         inputSystem.update();
-        inputProcessedThisFrame = true;
     }
 
     private void updateCameraPosition(double deltaTime) {
@@ -128,8 +125,8 @@ public class GameController {
         if (keyboard.isDPressed()) right -= 1;
 
         if (forward != 0 && right != 0) {
-            forward *= DIAGONAL_FACTOR;
-            right *= DIAGONAL_FACTOR;
+            forward *= GameConfig.CAMERA_SPEED_DIAGONAL_FACTOR;
+            right *= GameConfig.CAMERA_SPEED_DIAGONAL_FACTOR;
         }
 
         forward *= camera.getSpeed() * deltaTime;

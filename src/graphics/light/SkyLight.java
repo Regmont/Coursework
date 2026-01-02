@@ -1,5 +1,6 @@
 package graphics.light;
 
+import game.configuration.GameConfig;
 import graphics.utils.ColorUtils;
 
 import java.awt.*;
@@ -8,9 +9,9 @@ public class SkyLight {
     private Color skyColor;
     private double skyBrightness;
 
-    public SkyLight(Color color, double brightness) {
-        this.skyColor = color;
-        this.skyBrightness = brightness;
+    public SkyLight() {
+        this.skyColor = GameConfig.BACKGROUND_COLOR;
+        this.skyBrightness = GameConfig.BACKGROUND_BRIGHTNESS;
     }
 
     public Color getSkyColor() {

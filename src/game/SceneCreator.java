@@ -26,8 +26,13 @@ public class SceneCreator {
 //
 //        instances.add(objectInstance);
 //
+        ObjectInstance objectInstance2 = new ObjectInstance(cube, "Cube 1",
+                new Vector3D(0, -2, 0), Vector3D.zeroVector, Vector3D.unitVector);
+        objectInstance2.getObject().getMesh().setMaterial(new Material(Color.GRAY));
+        instances.add(objectInstance2);
+
 //        instances.add(new ObjectInstance(cube, "Cube 1",
-//                new Vector3D(2, 0, 0), Vector3D.zeroVector, Vector3D.unitVector));
+//                new Vector3D(0, -2, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
         instances.add(new ObjectInstance(terrain, "Terrain",
                 new Vector3D(0, -5, 0), Vector3D.zeroVector, Vector3D.unitVector));
@@ -36,7 +41,7 @@ public class SceneCreator {
     }
 
     public static List<PointLight> createDefaultLight() {
-        PointLight pointLight = new PointLight(new Vector3D(0, 0, 0), Color.RED, 0.5);
+        PointLight pointLight = new PointLight(new Vector3D(0, 10, 0), Color.RED, 0);
 
         List<PointLight> pointLights = new ArrayList<>();
 

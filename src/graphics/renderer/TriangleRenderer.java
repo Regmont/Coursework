@@ -1,33 +1,26 @@
 package graphics.renderer;
 
 import geometry.*;
-import graphics.light.AmbienceLight;
+import graphics.light.LightCalculator;
 import graphics.light.PointLight;
 import math.Vector3D;
 import graphics.utils.GeometryUtils;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class TriangleRenderer {
-    public static AmbienceLight ambienceLight = new AmbienceLight(0.5, Color.WHITE);
-
-    private static final int CELL_SIZE = 16;
-
     private static SpatialGrid spatialGrid;
     private static int lastWidth = -1;
     private static int lastHeight = -1;
 
     public static void renderTriangles(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
                                        int width, int height, List<PointLight> pointLights) {
-        if (spatialGrid == null || width != lastWidth || height != lastHeight) {
-            spatialGrid = new SpatialGrid(width, height, CELL_SIZE);
-            lastWidth = width;
-            lastHeight = height;
-        }
-
+        updateSpatialGridIfSizeChanged(width, height);
         spatialGrid.clear();
+
         for (Mesh mesh : meshes) {
             for (Triangle triangle : mesh.triangles()) {
                 spatialGrid.addTriangle(triangle);
@@ -37,15 +30,13 @@ public class TriangleRenderer {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 List<Triangle> trianglesInCell = spatialGrid.getTriangles(x, y);
-
-                if (trianglesInCell.isEmpty()) {
-                    continue;
-                }
+                if (trianglesInCell.isEmpty()) continue;
 
                 double centerX = x + 0.5;
                 double centerY = y + 0.5;
                 double closestDepth = Double.POSITIVE_INFINITY;
                 Color closestColor = null;
+                Triangle closestTriangle = null;
 
                 for (Triangle triangle : trianglesInCell) {
                     if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
@@ -53,35 +44,80 @@ public class TriangleRenderer {
                     }
 
                     double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
-
-                    if (depth < closestDepth) {
-                        closestDepth = depth;
-
-                        Material material = triangle.getMaterial();
-                        Color pixelColor;
-
-                        if (material.hasTexture() && triangle.hasUV()) {
-                            pixelColor = getTextureColor(centerX, centerY, triangle);
-                        } else {
-                            pixelColor = material.getColor();
-                        }
-
-                        pixelColor = ambienceLight.applyAmbienceLightToTriangles(pixelColor);
-
-                        for (PointLight pointLight : pointLights) {
-                            pixelColor = pointLight.applyLightToTriangle(pixelColor, triangle);
-                        }
-
-                        closestColor = pixelColor;
+                    if (depth >= closestDepth) {
+                        continue;
                     }
+
+                    closestDepth = depth;
+                    closestTriangle = triangle;
+
+                    Material material = triangle.getMaterial();
+                    closestColor = material.hasTexture() && triangle.hasUV() ?
+                            getTextureColor(centerX, centerY, triangle) : material.getColor();
                 }
 
                 if (closestColor != null && closestDepth < depthBuffer[x][y]) {
+                    Vector3D pixelWorldPos = getPixelWorldPosition(centerX, centerY, closestTriangle);
+                    Color finalColor = LightCalculator.calculatePixelColor(
+                            closestColor, closestTriangle, pixelWorldPos, pointLights
+                    );
+
                     depthBuffer[x][y] = closestDepth;
-                    colorBuffer[x][y] = closestColor;
+                    colorBuffer[x][y] = finalColor;
                 }
             }
         }
+    }
+
+    private static void updateSpatialGridIfSizeChanged(int width, int height) {
+        if (spatialGrid == null || width != lastWidth || height != lastHeight) {
+            spatialGrid = new SpatialGrid(width, height);
+            lastWidth = width;
+            lastHeight = height;
+        }
+    }
+
+    private static Vector3D getPixelWorldPosition(double px, double py, Triangle triangle) {
+        Vector3D[] worldPoints = triangle.getOriginalPoints();
+        if (worldPoints == null) return triangle.getCenter();
+
+        List<Vector3D> screenPoints = triangle.getPoints();
+
+        double x1 = screenPoints.get(0).getX(), y1 = screenPoints.get(0).getY();
+        double x2 = screenPoints.get(1).getX(), y2 = screenPoints.get(1).getY();
+        double x3 = screenPoints.get(2).getX(), y3 = screenPoints.get(2).getY();
+
+        double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
+        if (Math.abs(denom) < 1e-9) return triangle.getCenter();
+
+        double alpha = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3)) / denom;
+        double beta = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3)) / denom;
+        double gamma = 1 - alpha - beta;
+
+        double invW1 = triangle.getInvW1();
+        double invW2 = triangle.getInvW2();
+        double invW3 = triangle.getInvW3();
+
+        double weight1 = alpha * invW1;
+        double weight2 = beta * invW2;
+        double weight3 = gamma * invW3;
+        double totalWeight = weight1 + weight2 + weight3;
+
+        if (Math.abs(totalWeight) < 1e-9) return triangle.getCenter();
+
+        double wx = (alpha * worldPoints[0].getX() * invW1 +
+                beta * worldPoints[1].getX() * invW2 +
+                gamma * worldPoints[2].getX() * invW3) / totalWeight;
+
+        double wy = (alpha * worldPoints[0].getY() * invW1 +
+                beta * worldPoints[1].getY() * invW2 +
+                gamma * worldPoints[2].getY() * invW3) / totalWeight;
+
+        double wz = (alpha * worldPoints[0].getZ() * invW1 +
+                beta * worldPoints[1].getZ() * invW2 +
+                gamma * worldPoints[2].getZ() * invW3) / totalWeight;
+
+        return new Vector3D(wx, wy, wz);
     }
 
     private static Color getTextureColor(double x, double y, Triangle triangle) {
@@ -89,27 +125,51 @@ public class TriangleRenderer {
         Point2D uv2 = triangle.getUV2();
         Point2D uv3 = triangle.getUV3();
 
+        if (uv1 == null || uv2 == null || uv3 == null) {
+            return Color.BLACK;
+        }
+
         Vector3D A = triangle.getPoints().get(0);
         Vector3D B = triangle.getPoints().get(1);
         Vector3D C = triangle.getPoints().get(2);
 
-        double z1 = A.getZ();
-        double z2 = B.getZ();
-        double z3 = C.getZ();
+        double x1 = A.getX(), y1 = A.getY();
+        double x2 = B.getX(), y2 = B.getY();
+        double x3 = C.getX(), y3 = C.getY();
 
-        double denom = (B.getY() - C.getY()) * (A.getX() - C.getX()) + (C.getX() - B.getX()) * (A.getY() - C.getY());
+        double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
-        double alpha = ((B.getY() - C.getY()) * (x - C.getX()) + (C.getX() - B.getX()) * (y - C.getY())) / denom;
-        double beta = ((C.getY() - A.getY()) * (x - C.getX()) + (A.getX() - C.getX()) * (y - C.getY())) / denom;
+        if (Math.abs(denom) < 1e-9) {
+            return Color.BLACK;
+        }
+
+        double alpha = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denom;
+        double beta = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denom;
         double gamma = 1 - alpha - beta;
 
-        double interpolatedInvZ = alpha * (1.0/z1) + beta * (1.0/z2) + gamma * (1.0/z3);
+        double invW1 = triangle.getInvW1();
+        double invW2 = triangle.getInvW2();
+        double invW3 = triangle.getInvW3();
 
-        double uOverZ = alpha * (uv1.getX() / z1) + beta * (uv2.getX() / z2) + gamma * (uv3.getX() / z3);
-        double vOverZ = alpha * (uv1.getY() / z1) + beta * (uv2.getY() / z2) + gamma * (uv3.getY() / z3);
+        double interpolatedInvW = alpha * invW1 + beta * invW2 + gamma * invW3;
 
-        double u = uOverZ / interpolatedInvZ;
-        double v = vOverZ / interpolatedInvZ;
+        if (Math.abs(interpolatedInvW) < 1e-9) {
+            return Color.BLACK;
+        }
+
+        double uOverW = alpha * (uv1.getX() * invW1) +
+                beta * (uv2.getX() * invW2) +
+                gamma * (uv3.getX() * invW3);
+
+        double vOverW = alpha * (uv1.getY() * invW1) +
+                beta * (uv2.getY() * invW2) +
+                gamma * (uv3.getY() * invW3);
+
+        double u = uOverW / interpolatedInvW;
+        double v = vOverW / interpolatedInvW;
+
+        u = Math.max(0, Math.min(1, u));
+        v = Math.max(0, Math.min(1, v));
 
         return sampleTexture(triangle.getMaterial().getTexture(), u, v);
     }
@@ -124,7 +184,7 @@ public class TriangleRenderer {
         int texX = (int)(u * (texWidth - 1));
         int texY = (int)((1 - v) * (texHeight - 1));
 
-        java.awt.image.BufferedImage buffered = (java.awt.image.BufferedImage) texture;
+        BufferedImage buffered = (java.awt.image.BufferedImage) texture;
 
         return new Color(buffered.getRGB(texX, texY));
     }

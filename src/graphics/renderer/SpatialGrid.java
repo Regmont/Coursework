@@ -1,5 +1,6 @@
 package graphics.renderer;
 
+import game.configuration.RenderingConfig;
 import geometry.*;
 
 import java.util.*;
@@ -10,8 +11,8 @@ public class SpatialGrid {
     private final int gridCols;
     private final int gridRows;
 
-    public SpatialGrid(int screenWidth, int screenHeight, int cellSize) {
-        this.cellSize = cellSize;
+    public SpatialGrid(int screenWidth, int screenHeight) {
+        this.cellSize = RenderingConfig.SPATIAL_GRID_CELL_SIZE;
         this.gridCols = (screenWidth + cellSize - 1) / cellSize;
         this.gridRows = (screenHeight + cellSize - 1) / cellSize;
 
