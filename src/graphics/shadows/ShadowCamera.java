@@ -29,6 +29,10 @@ public class ShadowCamera {
                 RenderingConfig.SHADOW_CAMERA_NEAR, RenderingConfig.SHADOW_CAMERA_FAR);
     }
 
+    public Vector3D getPosition() {
+        return position;
+    }
+
     private Vector3D calculateUpVector(Vector3D dir) {
         double x = Math.abs(dir.getX());
         double y = Math.abs(dir.getY());

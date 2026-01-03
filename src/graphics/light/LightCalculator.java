@@ -18,6 +18,13 @@ public class LightCalculator {
         boolean inAnyShadow = false;
 
         for (PointLight light : lights) {
+            boolean isBackFacingToLight = isTriangleBackFacingToLight(triangle, light);
+
+            if (isBackFacingToLight) {
+                inAnyShadow = true;
+                continue;
+            }
+
             if (ShadowUtils.isPointInShadow(worldPos, light)) {
                 inAnyShadow = true;
             } else {
@@ -30,6 +37,14 @@ public class LightCalculator {
         }
 
         return color;
+    }
+
+    private static boolean isTriangleBackFacingToLight(Triangle triangle, PointLight light) {
+        Vector3D triangleCenter = triangle.getCenter();
+        Vector3D toLight = light.getWorldPosition().subtract(triangleCenter).normalize();
+        Vector3D normal = triangle.getWorldNormal();
+
+        return normal.dot(toLight) <= 0.0;
     }
 
     private static Color addLightContribution(Color currentColor, PointLight light,

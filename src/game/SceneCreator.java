@@ -35,13 +35,13 @@ public class SceneCreator {
 //                new Vector3D(0, -2, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
         instances.add(new ObjectInstance(terrain, "Terrain",
-                new Vector3D(0, -5, 0), Vector3D.zeroVector, Vector3D.unitVector));
+                new Vector3D(0, -4, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
         return instances;
     }
 
     public static List<PointLight> createDefaultLight() {
-        PointLight pointLight = new PointLight(new Vector3D(0, 10, 0), Color.RED, 0);
+        PointLight pointLight = new PointLight(new Vector3D(5, 10, 0), Color.RED, 1);
 
         List<PointLight> pointLights = new ArrayList<>();
 

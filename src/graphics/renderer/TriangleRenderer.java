@@ -57,7 +57,8 @@ public class TriangleRenderer {
                 }
 
                 if (closestColor != null && closestDepth < depthBuffer[x][y]) {
-                    Vector3D pixelWorldPos = getPixelWorldPosition(centerX, centerY, closestTriangle);
+                    Vector3D pixelWorldPos = GeometryUtils.getWorldPositionInTriangle(centerX, centerY,
+                            closestTriangle);
                     Color finalColor = LightCalculator.calculatePixelColor(
                             closestColor, closestTriangle, pixelWorldPos, pointLights
                     );
@@ -75,49 +76,6 @@ public class TriangleRenderer {
             lastWidth = width;
             lastHeight = height;
         }
-    }
-
-    private static Vector3D getPixelWorldPosition(double px, double py, Triangle triangle) {
-        Vector3D[] worldPoints = triangle.getOriginalPoints();
-        if (worldPoints == null) return triangle.getCenter();
-
-        List<Vector3D> screenPoints = triangle.getPoints();
-
-        double x1 = screenPoints.get(0).getX(), y1 = screenPoints.get(0).getY();
-        double x2 = screenPoints.get(1).getX(), y2 = screenPoints.get(1).getY();
-        double x3 = screenPoints.get(2).getX(), y3 = screenPoints.get(2).getY();
-
-        double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
-        if (Math.abs(denom) < 1e-9) return triangle.getCenter();
-
-        double alpha = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3)) / denom;
-        double beta = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3)) / denom;
-        double gamma = 1 - alpha - beta;
-
-        double invW1 = triangle.getInvW1();
-        double invW2 = triangle.getInvW2();
-        double invW3 = triangle.getInvW3();
-
-        double weight1 = alpha * invW1;
-        double weight2 = beta * invW2;
-        double weight3 = gamma * invW3;
-        double totalWeight = weight1 + weight2 + weight3;
-
-        if (Math.abs(totalWeight) < 1e-9) return triangle.getCenter();
-
-        double wx = (alpha * worldPoints[0].getX() * invW1 +
-                beta * worldPoints[1].getX() * invW2 +
-                gamma * worldPoints[2].getX() * invW3) / totalWeight;
-
-        double wy = (alpha * worldPoints[0].getY() * invW1 +
-                beta * worldPoints[1].getY() * invW2 +
-                gamma * worldPoints[2].getY() * invW3) / totalWeight;
-
-        double wz = (alpha * worldPoints[0].getZ() * invW1 +
-                beta * worldPoints[1].getZ() * invW2 +
-                gamma * worldPoints[2].getZ() * invW3) / totalWeight;
-
-        return new Vector3D(wx, wy, wz);
     }
 
     private static Color getTextureColor(double x, double y, Triangle triangle) {

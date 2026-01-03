@@ -4,7 +4,7 @@ public class RenderingConfig {
     public static final int SHADOW_MAP_RESOLUTION = 512;
     public static final int SPATIAL_GRID_CELL_SIZE = 16; //Размер ячейки экранного разбиения мешей
     public static final double SHADOW_DARKNESS_FACTOR = 0.3;
-    public static final double SHADOW_BIAS = 0.001; //Погрешность глубины точки при расчёте теней
+    public static final double SHADOW_BIAS = 0.0005; //Погрешность глубины точки при расчёте теней
 
     //Вертикальный поворот камеры
     public static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
