@@ -1,10 +1,13 @@
 package graphics.light;
 
+import game.configuration.ColorConfiguration;
 import geometry.Triangle;
+import graphics.renderer.Material;
 import graphics.shadows.ShadowCube;
 import math.Vector3D;
 import graphics.utils.ColorUtils;
 import graphics.shadows.ShadowCubeFace;
+import scene.ObjectInstance;
 
 import java.awt.*;
 
@@ -13,6 +16,19 @@ public class PointLight {
     private final Color color;
     private final double intensity;
     private final ShadowCube shadowCube;
+    private ObjectInstance objectInstance;
+
+    public PointLight(Vector3D worldPosition, Color color, double intensity, ObjectInstance objectInstance) {
+        this.worldPosition = worldPosition;
+        this.color = color;
+        this.intensity = intensity;
+        this.objectInstance = objectInstance;
+
+        this.objectInstance.setPosition(worldPosition);
+        this.objectInstance.getMesh().setMaterial(new Material(color, true));
+
+        shadowCube = new ShadowCube(worldPosition);
+    }
 
     public PointLight(Vector3D worldPosition, Color color, double intensity) {
         this.worldPosition = worldPosition;
@@ -34,22 +50,18 @@ public class PointLight {
         return color;
     }
 
-    public double getIntensity() {
-        return intensity;
-    }
-
     public Color calculateLightContribution(Triangle triangle, Vector3D point) {
         Vector3D normal = triangle.getWorldNormal();
 
         if (normal == null) {
-            return LightConstants.NO_LIGHT_CONTRIBUTION;
+            return ColorConfiguration.NO_LIGHT_CONTRIBUTION;
         }
 
         Vector3D lightDir = worldPosition.subtract(point).normalize();
         double lambert = Math.max(0.0, normal.dot(lightDir));
 
         if (lambert <= 0.0) {
-            return LightConstants.NO_LIGHT_CONTRIBUTION;
+            return ColorConfiguration.NO_LIGHT_CONTRIBUTION;
         }
 
         double distance = point.subtract(worldPosition).length();
@@ -57,11 +69,12 @@ public class PointLight {
 
         double lightAmount = lambert * intensity * attenuation;
 
-        return ColorUtils.applyBrightnessWithColoredLight(LightConstants.FULL_LIGHT, color, lightAmount);
+        return ColorUtils.applyBrightnessWithColoredLight(ColorConfiguration.FULL_LIGHT, color, lightAmount);
     }
 
     public int getCubeFaceIndex(Vector3D worldPoint) {
         Vector3D dir = worldPoint.subtract(worldPosition).normalize();
+
         double x = dir.getX();
         double y = dir.getY();
         double z = dir.getZ();
@@ -77,5 +90,17 @@ public class PointLight {
         } else {
             return z > 0 ? 4 : 5;
         }
+    }
+
+    public ShadowCube getShadowCube() {
+        return shadowCube;
+    }
+
+    public boolean hasObjectInstance() {
+        return objectInstance != null;
+    }
+
+    public ObjectInstance getObjectInstance() {
+        return objectInstance;
     }
 }

@@ -6,7 +6,7 @@ import math.Vector3D;
 import java.util.List;
 
 public class GeometryUtils {
-    private static final double EPSILON = 1e-9;
+    private static final double EPSILON = 1e-9; //Погрешность вычисления координат
 
     public static boolean isPointInTriangle(double px, double py, Triangle triangle) {
         List<Vector3D> points = triangle.getPoints();
@@ -53,6 +53,7 @@ public class GeometryUtils {
 
     public static Vector3D getWorldPositionInTriangle(double px, double py, Triangle triangle) {
         Vector3D[] worldPoints = triangle.getOriginalPoints();
+
         if (worldPoints == null || worldPoints.length < 3) {
             return triangle.getCenter();
         }
@@ -64,6 +65,7 @@ public class GeometryUtils {
         double x3 = screenPoints.get(2).getX(), y3 = screenPoints.get(2).getY();
 
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
+
         if (Math.abs(denom) < EPSILON) {
             return triangle.getCenter();
         }

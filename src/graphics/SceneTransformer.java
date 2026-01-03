@@ -26,9 +26,7 @@ public class SceneTransformer {
             double[] invW = new double[3];
 
             for (int i = 0; i < 3; i++) {
-                Vector4d vec = new Vector4d(points.get(i).getX(),
-                        points.get(i).getY(),
-                        points.get(i).getZ(), 1.0);
+                Vector4d vec = new Vector4d(points.get(i).getX(), points.get(i).getY(), points.get(i).getZ(), 1.0);
                 vec = mvpMatrix.transform(vec);
 
                 if (vec.w <= 0.0) {
@@ -49,13 +47,16 @@ public class SceneTransformer {
             }
 
             Vector3D[] worldPoints;
+
             if (triangle.hasOriginalPoints()) {
                 worldPoints = new Vector3D[3];
+
                 for (int i = 0; i < 3; i++) {
                     worldPoints[i] = applyWorldMatrix(modelMatrix, triangle.getOriginalPoints()[i]);
                 }
             } else {
                 worldPoints = new Vector3D[3];
+
                 for (int i = 0; i < 3; i++) {
                     worldPoints[i] = applyWorldMatrix(modelMatrix, points.get(i));
                 }

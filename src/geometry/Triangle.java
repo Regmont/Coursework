@@ -20,8 +20,7 @@ public class Triangle {
     private final double invW1;
     private final double invW2;
     private final double invW3;
-    private BoundingBox boundingBox = null;
-    private boolean boundingBoxDirty = true;
+    private BoundingBox boundingBox;
 
     public Triangle(Vector3D point1, Vector3D point2, Vector3D point3,
                     Material material, Vector3D[] originalPoints,
@@ -85,7 +84,7 @@ public class Triangle {
     public boolean hasUV() { return uv1 != null && uv2 != null && uv3 != null; }
 
     public BoundingBox getBoundingBox() {
-        if (boundingBox != null && !boundingBoxDirty) {
+        if (boundingBox != null) {
             return boundingBox;
         }
 
@@ -101,8 +100,6 @@ public class Triangle {
                 (int)Math.floor(minX), (int)Math.ceil(maxX),
                 (int)Math.floor(minY), (int)Math.ceil(maxY)
         );
-
-        boundingBoxDirty = false;
 
         return boundingBox;
     }
@@ -143,36 +140,12 @@ public class Triangle {
         return invW3;
     }
 
-    @Override
-    public String toString() {
-        return point1 + " " + point2 + " " + point3;
-    }
-
     private Vector3D calculateCameraNormal() {
         if (cameraNormal != null) {
             return new Vector3D(cameraNormal);
         }
 
-        double v1x = point2.getX() - point1.getX();
-        double v1y = point2.getY() - point1.getY();
-        double v1z = point2.getZ() - point1.getZ();
-
-        double v2x = point3.getX() - point1.getX();
-        double v2y = point3.getY() - point1.getY();
-        double v2z = point3.getZ() - point1.getZ();
-
-        double nx = v1y * v2z - v1z * v2y;
-        double ny = v1z * v2x - v1x * v2z;
-        double nz = v1x * v2y - v1y * v2x;
-
-        double length = Math.sqrt(nx * nx + ny * ny + nz * nz);
-        if (length > 0) {
-            nx /= length;
-            ny /= length;
-            nz /= length;
-        }
-
-        cameraNormal = new Vector3D(nx, ny, nz);
+        cameraNormal = calculateNormal(point1, point2, point3);
 
         return new Vector3D(cameraNormal);
     }
@@ -182,10 +155,10 @@ public class Triangle {
             return null;
         }
 
-        Vector3D p1 = originalPoints[0];
-        Vector3D p2 = originalPoints[1];
-        Vector3D p3 = originalPoints[2];
+        return calculateNormal(originalPoints[0], originalPoints[1], originalPoints[2]);
+    }
 
+    private Vector3D calculateNormal(Vector3D p1, Vector3D p2, Vector3D p3) {
         double v1x = p2.getX() - p1.getX();
         double v1y = p2.getY() - p1.getY();
         double v1z = p2.getZ() - p1.getZ();
@@ -199,6 +172,7 @@ public class Triangle {
         double nz = v1x * v2y - v1y * v2x;
 
         double length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
         if (length > 0) {
             nx /= length;
             ny /= length;

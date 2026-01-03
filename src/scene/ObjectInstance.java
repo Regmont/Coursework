@@ -1,11 +1,13 @@
 package scene;
 
+import geometry.Mesh;
 import math.Vector3D;
 import org.joml.Matrix4d;
 
 public class ObjectInstance {
     private final Object3D object;
     private final String name;
+    private final Mesh mesh;
     private Vector3D position;
     private Vector3D rotation;
     private Vector3D scale;
@@ -16,10 +18,12 @@ public class ObjectInstance {
         this.position = position;
         this.rotation = rotation;
         this.scale = scale;
+
+        mesh = object.getMesh().getCopy();
     }
 
-    public Object3D getObject() {
-        return object;
+    public Mesh getMesh() {
+        return mesh;
     }
 
     public Vector3D getPosition() {

@@ -1,7 +1,8 @@
 package graphics.light;
 
-import game.configuration.RenderingConfig;
+import game.configuration.GameConfig;
 import geometry.Triangle;
+import graphics.renderer.Material;
 import math.Vector3D;
 import graphics.utils.ShadowUtils;
 
@@ -13,6 +14,12 @@ public class LightCalculator {
 
     public static Color calculatePixelColor(Color baseColor, Triangle triangle,
                                             Vector3D worldPos, List<PointLight> lights) {
+        Material material = triangle.getMaterial();
+
+        if (material.isTransparentForLight()) {
+            return material.getColor();
+        }
+
         Color color = ambienceLight.applyAmbienceLightToTriangles(baseColor);
 
         boolean inAnyShadow = false;
@@ -22,6 +29,7 @@ public class LightCalculator {
 
             if (isBackFacingToLight) {
                 inAnyShadow = true;
+
                 continue;
             }
 
@@ -63,12 +71,22 @@ public class LightCalculator {
     }
 
     private static Color darkenColor(Color color) {
-        double factor = 1 - RenderingConfig.SHADOW_DARKNESS_FACTOR;
+        Color shadowColor = GameConfig.SHADOW_COLOR;
+        double darkness = GameConfig.SHADOW_DARKNESS_FACTOR;
+        double colorMix = GameConfig.SHADOW_COLOR_MIX;
 
-        int r = (int)(color.getRed() * factor);
-        int g = (int)(color.getGreen() * factor);
-        int b = (int)(color.getBlue() * factor);
+        int r1 = (int)(color.getRed() * (1 - darkness));
+        int g1 = (int)(color.getGreen() * (1 - darkness));
+        int b1 = (int)(color.getBlue() * (1 - darkness));
 
-        return new Color(r, g, b);
+        int r2 = (int)(shadowColor.getRed() * colorMix + r1 * (1 - colorMix));
+        int g2 = (int)(shadowColor.getGreen() * colorMix + g1 * (1 - colorMix));
+        int b2 = (int)(shadowColor.getBlue() * colorMix + b1 * (1 - colorMix));
+
+        r2 = Math.min(255, Math.max(0, r2));
+        g2 = Math.min(255, Math.max(0, g2));
+        b2 = Math.min(255, Math.max(0, b2));
+
+        return new Color(r2, g2, b2);
     }
 }

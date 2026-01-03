@@ -12,14 +12,24 @@ public record Mesh(List<Triangle> triangles) {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder resultString = new StringBuilder();
+    public Mesh getCopy() {
+        List<Triangle> newTriangles = new ArrayList<>();
 
         for (Triangle triangle : triangles) {
-            resultString.append(triangle).append("\n");
+            Triangle newTriangle = new Triangle(
+                    triangle.getPoints().get(0),
+                    triangle.getPoints().get(1),
+                    triangle.getPoints().get(2),
+                    triangle.getUV1(),
+                    triangle.getUV2(),
+                    triangle.getUV3()
+            );
+
+            newTriangle.setMaterial(triangle.getMaterial());
+
+            newTriangles.add(newTriangle);
         }
 
-        return resultString.toString();
+        return new Mesh(newTriangles);
     }
 }

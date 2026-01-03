@@ -16,12 +16,6 @@ public class Camera {
         this.speed = GameConfig.CAMERA_SPEED;
     }
 
-    public Camera(Vector3D position, Vector3D rotation) {
-        this.position = position;
-        this.rotation = rotation;
-        this.speed = 0;
-    }
-
     public Vector3D getPosition() {
         return position;
     }
@@ -55,8 +49,8 @@ public class Camera {
     public Matrix4d getProjectionMatrix(int screenWidth, int screenHeight) {
         double aspectRatio = (double) screenWidth / screenHeight;
 
-        return new Matrix4d().perspective(RenderingConfig.FOV, aspectRatio, RenderingConfig.NEAR_PLANE,
-                RenderingConfig.FAR_PLANE);
+        return new Matrix4d().perspective(RenderingConfig.FOV, aspectRatio, RenderingConfig.MAIN_CAMERA_NEAR,
+                RenderingConfig.MAIN_CAMERA_FAR);
     }
 
     public double getSpeed() {

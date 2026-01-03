@@ -25,11 +25,15 @@ public class ShadowCube {
             case 3 -> new Vector3D(0, -1, 0);  // -Y
             case 4 -> new Vector3D(0, 0, 1);   // +Z
             case 5 -> new Vector3D(0, 0, -1);  // -Z
-            default -> new Vector3D(0, 0, 1);
+            default -> Vector3D.zeroVector;
         };
     }
 
     public ShadowCubeFace getFace(int index) {
         return faces[index];
+    }
+
+    public ShadowCubeFace[] getFaces() {
+        return faces;
     }
 }

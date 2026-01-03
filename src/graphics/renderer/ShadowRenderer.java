@@ -19,8 +19,7 @@ public class ShadowRenderer {
 
     public static void renderShadowMaps(List<PointLight> lights, List<ObjectInstance> instances) {
         for (PointLight light : lights) {
-            for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
-                ShadowCubeFace face = light.getShadowFace(faceIndex);
+            for (ShadowCubeFace face : light.getShadowCube().getFaces()) {
                 face.clearDepthBuffer();
 
                 ShadowCamera shadowCamera = face.getCamera();
@@ -28,13 +27,21 @@ public class ShadowRenderer {
                 int height = face.getDepthBuffer()[0].length;
 
                 for (ObjectInstance instance : instances) {
-                    Mesh originalMesh = instance.getObject().getMesh();
+                    Mesh originalMesh = instance.getMesh();
+
+                    boolean hasTransparentMaterial = originalMesh.triangles().stream()
+                            .anyMatch(t -> t.getMaterial().isTransparentForLight());
+
+                    if (hasTransparentMaterial) {
+                        continue;
+                    }
+
                     Matrix4d modelMatrix = instance.getModelMatrix();
 
                     Mesh shadowMesh = transformMeshForShadow(originalMesh, modelMatrix,
                             shadowCamera, width, height);
 
-                    renderMeshDepthOnly(shadowMesh, face.getDepthBuffer());
+                    rasterizeTrianglesToDepthBuffer(shadowMesh, face.getDepthBuffer());
                 }
             }
         }
@@ -51,10 +58,10 @@ public class ShadowRenderer {
 
         for (Triangle triangle : originalTriangles) {
             List<Vector3D> points = triangle.getPoints();
-            Vector3D[] transformedPoints = new Vector3D[3];
-            double[] invW = new double[3];
+            Vector3D[] transformedPoints = new Vector3D[points.size()];
+            double[] invW = new double[points.size()];
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < points.size(); i++) {
                 Vector3D point = points.get(i);
                 Vector4d vec = new Vector4d(point.getX(), point.getY(), point.getZ(), 1.0);
                 vec = mvpMatrix.transform(vec);
@@ -90,35 +97,31 @@ public class ShadowRenderer {
         return new Mesh(transformedTriangles);
     }
 
-    private static void renderMeshDepthOnly(Mesh mesh, double[][] depthBuffer) {
+    private static void rasterizeTrianglesToDepthBuffer(Mesh mesh, double[][] depthBuffer) {
         for (Triangle triangle : mesh.triangles()) {
-            rasterizeTriangleToDepthBuffer(triangle, depthBuffer);
-        }
-    }
+            int width = depthBuffer.length;
+            int height = depthBuffer[0].length;
 
-    private static void rasterizeTriangleToDepthBuffer(Triangle triangle, double[][] depthBuffer) {
-        int width = depthBuffer.length;
-        int height = depthBuffer[0].length;
+            BoundingBox boundingBox = triangle.getBoundingBox();
+            int minX = Math.max(0, boundingBox.minX());
+            int maxX = Math.min(width - 1, boundingBox.maxX());
+            int minY = Math.max(0, boundingBox.minY());
+            int maxY = Math.min(height - 1, boundingBox.maxY());
 
-        BoundingBox boundingBox = triangle.getBoundingBox();
-        int minX = Math.max(0, boundingBox.minX());
-        int maxX = Math.min(width - 1, boundingBox.maxX());
-        int minY = Math.max(0, boundingBox.minY());
-        int maxY = Math.min(height - 1, boundingBox.maxY());
+            for (int y = minY; y <= maxY; y++) {
+                for (int x = minX; x <= maxX; x++) {
+                    double centerX = x + 0.5;
+                    double centerY = y + 0.5;
 
-        for (int y = minY; y <= maxY; y++) {
-            for (int x = minX; x <= maxX; x++) {
-                double centerX = x + 0.5;
-                double centerY = y + 0.5;
+                    if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
+                        continue;
+                    }
 
-                if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
-                    continue;
-                }
+                    double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
 
-                double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
-
-                if (depth < depthBuffer[x][y]) {
-                    depthBuffer[x][y] = depth;
+                    if (depth < depthBuffer[x][y]) {
+                        depthBuffer[x][y] = depth;
+                    }
                 }
             }
         }

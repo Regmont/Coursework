@@ -7,28 +7,26 @@ import java.util.*;
 
 public class SpatialGrid {
     private final int cellSize;
-    private final ArrayList[][] grid;
-    private final int gridCols;
-    private final int gridRows;
+    private final List<Triangle>[] cells;
+    private final int cols;
+    private final int rows;
 
+    @SuppressWarnings("unchecked")
     public SpatialGrid(int screenWidth, int screenHeight) {
         this.cellSize = RenderingConfig.SPATIAL_GRID_CELL_SIZE;
-        this.gridCols = (screenWidth + cellSize - 1) / cellSize;
-        this.gridRows = (screenHeight + cellSize - 1) / cellSize;
+        this.cols = (screenWidth + cellSize - 1) / cellSize;
+        this.rows = (screenHeight + cellSize - 1) / cellSize;
 
-        grid = new ArrayList[gridCols][gridRows];
-        for (int i = 0; i < gridCols; i++) {
-            for (int j = 0; j < gridRows; j++) {
-                grid[i][j] = new ArrayList<>();
-            }
+        cells = (List<Triangle>[]) new List[cols * rows];
+
+        for (int i = 0; i < cells.length; i++) {
+            cells[i] = new ArrayList<>();
         }
     }
 
     public void clear() {
-        for (int i = 0; i < gridCols; i++) {
-            for (int j = 0; j < gridRows; j++) {
-                grid[i][j].clear();
-            }
+        for (List<Triangle> cell : cells) {
+            cell.clear();
         }
     }
 
@@ -40,13 +38,15 @@ public class SpatialGrid {
         BoundingBox boundingBox = triangle.getBoundingBox();
 
         int minCellX = Math.max(0, boundingBox.minX() / cellSize);
-        int maxCellX = Math.min(gridCols - 1, boundingBox.maxX() / cellSize);
+        int maxCellX = Math.min(cols - 1, boundingBox.maxX() / cellSize);
         int minCellY = Math.max(0, boundingBox.minY() / cellSize);
-        int maxCellY = Math.min(gridRows - 1, boundingBox.maxY() / cellSize);
+        int maxCellY = Math.min(rows - 1, boundingBox.maxY() / cellSize);
 
-        for (int cx = minCellX; cx <= maxCellX; cx++) {
-            for (int cy = minCellY; cy <= maxCellY; cy++) {
-                grid[cx][cy].add(triangle);
+        for (int cy = minCellY; cy <= maxCellY; cy++) {
+            int rowOffset = cy * cols;
+
+            for (int cx = minCellX; cx <= maxCellX; cx++) {
+                cells[rowOffset + cx].add(triangle);
             }
         }
     }
@@ -55,8 +55,8 @@ public class SpatialGrid {
         int cellX = x / cellSize;
         int cellY = y / cellSize;
 
-        if (cellX >= 0 && cellX < gridCols && cellY >= 0 && cellY < gridRows) {
-            return grid[cellX][cellY];
+        if (cellX >= 0 && cellX < cols && cellY >= 0 && cellY < rows) {
+            return cells[cellY * cols + cellX];
         }
 
         return Collections.emptyList();

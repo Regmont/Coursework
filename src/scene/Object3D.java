@@ -19,11 +19,20 @@ public class Object3D {
 
         try {
             String modelPath = "models/" + modelName + ".obj";
-            String texturePath = "textures/" + modelName + ".png";
 
             mesh = OBJParser.parseOBJ(modelPath);
-            BufferedImage texture = ImageIO.read(new File(texturePath));
-            Material material = new Material(texture);
+
+            String texturePath = "textures/" + modelName + ".png";
+            File textureFile = new File(texturePath);
+
+            Material material;
+
+            if (textureFile.exists()) {
+                BufferedImage texture = ImageIO.read(textureFile);
+                material = new Material(texture);
+            } else {
+                material = new Material(game.configuration.ColorConfiguration.BROKEN_MODEL_COLOR, false);
+            }
 
             for (Triangle triangle : mesh.triangles()) {
                 triangle.setMaterial(material);

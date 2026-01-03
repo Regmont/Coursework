@@ -9,10 +9,10 @@ import java.awt.image.BufferedImage;
 public class Mouse {
     private boolean captured = false;
 
-    private volatile int deltaX = 0;
-    private volatile int deltaY = 0;
-    private volatile int lastDeltaX = 0;
-    private volatile int lastDeltaY = 0;
+    private int deltaX = 0;
+    private int deltaY = 0;
+    private int lastDeltaX = 0;
+    private int lastDeltaY = 0;
 
     private Robot robot;
     private final Component window;
@@ -115,12 +115,6 @@ public class Mouse {
     public void release() {
         captured = false;
         window.setCursor(Cursor.getDefaultCursor());
-
-        deltaX = 0;
-        deltaY = 0;
-        lastDeltaX = 0;
-        lastDeltaY = 0;
-        needsCentering = false;
     }
 
     public boolean isCaptured() {

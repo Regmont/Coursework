@@ -38,27 +38,7 @@ public class OBJParser {
                         texCoords.add(new Point2D.Double(u, v));
                     }
                     case "f" -> {
-                        String[] indices1 = parts[1].split("/");
-                        String[] indices2 = parts[2].split("/");
-                        String[] indices3 = parts[3].split("/");
-
-                        int vIdx1 = Integer.parseInt(indices1[0]) - 1;
-                        int vIdx2 = Integer.parseInt(indices2[0]) - 1;
-                        int vIdx3 = Integer.parseInt(indices3[0]) - 1;
-
-                        Vector3D p1 = vertices.get(vIdx1);
-                        Vector3D p2 = vertices.get(vIdx2);
-                        Vector3D p3 = vertices.get(vIdx3);
-
-                        int uvIdx1 = Integer.parseInt(indices1[1]) - 1;
-                        int uvIdx2 = Integer.parseInt(indices2[1]) - 1;
-                        int uvIdx3 = Integer.parseInt(indices3[1]) - 1;
-
-                        Point2D uv1 = texCoords.get(uvIdx1);
-                        Point2D uv2 = texCoords.get(uvIdx2);
-                        Point2D uv3 = texCoords.get(uvIdx3);
-
-                        Triangle triangle = new Triangle(p1, p2, p3, uv1, uv2, uv3);
+                        Triangle triangle = getTriangle(parts, vertices, texCoords);
                         triangles.add(triangle);
                     }
                 }
@@ -66,5 +46,29 @@ public class OBJParser {
         }
 
         return new Mesh(triangles);
+    }
+
+    private static Triangle getTriangle(String[] parts, List<Vector3D> vertices, List<Point2D> texCoords) {
+        String[] indices1 = parts[1].split("/");
+        String[] indices2 = parts[2].split("/");
+        String[] indices3 = parts[3].split("/");
+
+        int vIdx1 = Integer.parseInt(indices1[0]) - 1;
+        int vIdx2 = Integer.parseInt(indices2[0]) - 1;
+        int vIdx3 = Integer.parseInt(indices3[0]) - 1;
+
+        Vector3D p1 = vertices.get(vIdx1);
+        Vector3D p2 = vertices.get(vIdx2);
+        Vector3D p3 = vertices.get(vIdx3);
+
+        int uvIdx1 = Integer.parseInt(indices1[1]) - 1;
+        int uvIdx2 = Integer.parseInt(indices2[1]) - 1;
+        int uvIdx3 = Integer.parseInt(indices3[1]) - 1;
+
+        Point2D uv1 = texCoords.get(uvIdx1);
+        Point2D uv2 = texCoords.get(uvIdx2);
+        Point2D uv3 = texCoords.get(uvIdx3);
+
+        return new Triangle(p1, p2, p3, uv1, uv2, uv3);
     }
 }

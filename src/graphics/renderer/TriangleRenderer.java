@@ -1,5 +1,6 @@
 package graphics.renderer;
 
+import game.configuration.ColorConfiguration;
 import geometry.*;
 import graphics.light.LightCalculator;
 import graphics.light.PointLight;
@@ -30,10 +31,14 @@ public class TriangleRenderer {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 List<Triangle> trianglesInCell = spatialGrid.getTriangles(x, y);
-                if (trianglesInCell.isEmpty()) continue;
+
+                if (trianglesInCell.isEmpty()) {
+                    continue;
+                };
 
                 double centerX = x + 0.5;
                 double centerY = y + 0.5;
+
                 double closestDepth = Double.POSITIVE_INFINITY;
                 Color closestColor = null;
                 Triangle closestTriangle = null;
@@ -44,6 +49,7 @@ public class TriangleRenderer {
                     }
 
                     double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
+
                     if (depth >= closestDepth) {
                         continue;
                     }
@@ -79,12 +85,8 @@ public class TriangleRenderer {
     }
 
     private static Color getTextureColor(double x, double y, Triangle triangle) {
-        Point2D uv1 = triangle.getUV1();
-        Point2D uv2 = triangle.getUV2();
-        Point2D uv3 = triangle.getUV3();
-
-        if (uv1 == null || uv2 == null || uv3 == null) {
-            return Color.BLACK;
+        if (!triangle.hasUV()) {
+            return ColorConfiguration.BROKEN_MODEL_COLOR;
         }
 
         Vector3D A = triangle.getPoints().get(0);
@@ -98,7 +100,7 @@ public class TriangleRenderer {
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
         if (Math.abs(denom) < 1e-9) {
-            return Color.BLACK;
+            return ColorConfiguration.BROKEN_MODEL_COLOR;
         }
 
         double alpha = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denom;
@@ -112,8 +114,12 @@ public class TriangleRenderer {
         double interpolatedInvW = alpha * invW1 + beta * invW2 + gamma * invW3;
 
         if (Math.abs(interpolatedInvW) < 1e-9) {
-            return Color.BLACK;
+            return ColorConfiguration.NUMERICAL_ERROR_COLOR;
         }
+
+        Point2D uv1 = triangle.getUV1();
+        Point2D uv2 = triangle.getUV2();
+        Point2D uv3 = triangle.getUV3();
 
         double uOverW = alpha * (uv1.getX() * invW1) +
                 beta * (uv2.getX() * invW2) +
