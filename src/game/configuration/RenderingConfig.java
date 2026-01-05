@@ -10,13 +10,11 @@ public class RenderingConfig {
     public static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
     public static final double MIN_PITCH = -Math.PI / 2.0 + 0.01; // -89.99°
 
-    public static final double FOV = Math.PI / 3; //Вертикальный угол обзора главной камеры (60°)
+    public static final double SHADOW_CAMERA_FOV = Math.PI / 2; // Вертикальный угол обзора теневой камеры
 
     //Границы дальности отсечения видимой области (мешей)
     public static final double MAIN_CAMERA_NEAR = 0.1;
     public static final double MAIN_CAMERA_FAR = 100.0;
     public static final double SHADOW_CAMERA_NEAR = 0.1;
     public static final double SHADOW_CAMERA_FAR = 100.0;
-
-    public static final double SHADOW_MAP_ASPECT_RATIO = 1.0; // Отношение сторон теневой карты
 }

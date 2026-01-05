@@ -1,8 +1,10 @@
 package graphics.utils;
 
 import game.configuration.RenderingConfig;
-import graphics.light.PointLight;
+import scene.PointLight;
+import graphics.CameraBase;
 import graphics.shadows.ShadowCamera;
+import graphics.shadows.ShadowCube;
 import graphics.shadows.ShadowCubeFace;
 import math.Vector3D;
 import org.joml.Matrix4d;
@@ -10,9 +12,9 @@ import org.joml.Vector4d;
 
 public class ShadowUtils {
 
-    public static boolean isPointInShadow(Vector3D worldPoint, PointLight light) {
-        int faceIndex = light.getCubeFaceIndex(worldPoint);
-        ShadowCubeFace face = light.getShadowFace(faceIndex);
+    public static boolean isPointInShadow(Vector3D worldPoint, PointLight light, ShadowCube shadowCube) {
+        int faceIndex = LightUtils.getCubeFaceIndex(light, worldPoint);
+        ShadowCubeFace face = shadowCube.getFaces()[faceIndex];
 
         if (face == null) {
             return false;
@@ -37,8 +39,10 @@ public class ShadowUtils {
 
     private static double[] worldToShadowMap(Vector3D worldPoint, ShadowCamera shadowCamera,
                                              int shadowWidth, int shadowHeight) {
-        Matrix4d viewMatrix = shadowCamera.getViewMatrix();
-        Matrix4d projMatrix = shadowCamera.getProjectionMatrix();
+        Matrix4d viewMatrix = CameraBase.getViewMatrix(shadowCamera);
+        Matrix4d projMatrix = CameraBase.getProjectionMatrix(shadowCamera, RenderingConfig.SHADOW_MAP_RESOLUTION,
+                RenderingConfig.SHADOW_MAP_RESOLUTION, RenderingConfig.SHADOW_CAMERA_NEAR,
+                RenderingConfig.SHADOW_CAMERA_FAR);
         Matrix4d viewProjMatrix = projMatrix.mul(viewMatrix);
 
         Vector4d vec = new Vector4d(worldPoint.getX(), worldPoint.getY(), worldPoint.getZ(), 1.0);

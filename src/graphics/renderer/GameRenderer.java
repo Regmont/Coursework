@@ -1,7 +1,7 @@
 package graphics.renderer;
 
 import graphics.SceneSystem;
-import graphics.light.SkyLight;
+import graphics.utils.ColorUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -12,7 +12,6 @@ public class GameRenderer {
     private double[][] depthBuffer;
     private BufferedImage frame;
     private final SceneSystem sceneSystem;
-    private final SkyLight skyLight = new SkyLight();
 
     public GameRenderer(SceneSystem sceneSystem) {
         this.sceneSystem = sceneSystem;
@@ -20,7 +19,7 @@ public class GameRenderer {
 
     public BufferedImage getFrame(int width, int height) {
         resizeBuffersIfWindowSizeChanged(width, height);
-        MainRenderer.renderScene(colorBuffer, depthBuffer, skyLight.getSkyColor(), sceneSystem);
+        MainRenderer.renderScene(colorBuffer, depthBuffer, ColorUtils.getSkyColor(sceneSystem.getSky()), sceneSystem);
         copyColorBufferToImage(width, height);
 
         return frame;
@@ -36,7 +35,7 @@ public class GameRenderer {
 
     private void copyColorBufferToImage(int width, int height) {
         int[] pixels = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
-        int backgroundRGB = skyLight.getSkyColor().getRGB();
+        int backgroundRGB = ColorUtils.getSkyColor(sceneSystem.getSky()).getRGB();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {

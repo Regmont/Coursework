@@ -2,29 +2,32 @@ package graphics.light;
 
 import game.configuration.GameConfig;
 import geometry.Triangle;
-import graphics.renderer.Material;
+import geometry.Material;
+import graphics.utils.ColorUtils;
+import graphics.utils.LightUtils;
 import math.Vector3D;
 import graphics.utils.ShadowUtils;
+import scene.AmbienceLight;
+import scene.PointLight;
 
 import java.awt.Color;
-import java.util.List;
 
 public class LightCalculator {
-    private static final AmbienceLight ambienceLight = new AmbienceLight();
-
     public static Color calculatePixelColor(Color baseColor, Triangle triangle,
-                                            Vector3D worldPos, List<PointLight> lights) {
+                                            Vector3D worldPos, ShadowLightSystem shadowLightSystem,
+                                            AmbienceLight ambienceLight) {
         Material material = triangle.getMaterial();
 
         if (material.isTransparentForLight()) {
             return material.getColor();
         }
 
-        Color color = ambienceLight.applyAmbienceLightToTriangles(baseColor);
+        Color color = ColorUtils.applyBrightnessWithColoredLight(baseColor,
+                ambienceLight.getColor(), ambienceLight.getIntensity());
 
         boolean inAnyShadow = false;
 
-        for (PointLight light : lights) {
+        for (PointLight light : shadowLightSystem.getLightToShadowCube().keySet()) {
             boolean isBackFacingToLight = isTriangleBackFacingToLight(triangle, light);
 
             if (isBackFacingToLight) {
@@ -33,7 +36,7 @@ public class LightCalculator {
                 continue;
             }
 
-            if (ShadowUtils.isPointInShadow(worldPos, light)) {
+            if (ShadowUtils.isPointInShadow(worldPos, light, shadowLightSystem.getLightToShadowCube().get(light))) {
                 inAnyShadow = true;
             } else {
                 color = addLightContribution(color, light, triangle, worldPos);
@@ -49,7 +52,7 @@ public class LightCalculator {
 
     private static boolean isTriangleBackFacingToLight(Triangle triangle, PointLight light) {
         Vector3D triangleCenter = triangle.getCenter();
-        Vector3D toLight = light.getWorldPosition().subtract(triangleCenter).normalize();
+        Vector3D toLight = light.getTransform().getPosition().subtract(triangleCenter).normalize();
         Vector3D normal = triangle.getWorldNormal();
 
         return normal.dot(toLight) <= 0.0;
@@ -57,7 +60,7 @@ public class LightCalculator {
 
     private static Color addLightContribution(Color currentColor, PointLight light,
                                               Triangle triangle, Vector3D worldPos) {
-        Color lightContribution = light.calculateLightContribution(triangle, worldPos);
+        Color lightContribution = LightUtils.calculateLightContribution(light, triangle, worldPos);
         
         return blendAdditive(currentColor, lightContribution);
     }

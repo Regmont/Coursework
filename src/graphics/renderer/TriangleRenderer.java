@@ -1,9 +1,10 @@
 package graphics.renderer;
 
-import game.configuration.ColorConfiguration;
+import game.configuration.ColorConfig;
 import geometry.*;
+import graphics.light.ShadowLightSystem;
+import scene.AmbienceLight;
 import graphics.light.LightCalculator;
-import graphics.light.PointLight;
 import math.Vector3D;
 import graphics.utils.GeometryUtils;
 
@@ -18,7 +19,8 @@ public class TriangleRenderer {
     private static int lastHeight = -1;
 
     public static void renderTriangles(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
-                                       int width, int height, List<PointLight> pointLights) {
+                                       int width, int height, ShadowLightSystem shadowLightSystem,
+                                       AmbienceLight ambienceLight) {
         updateSpatialGridIfSizeChanged(width, height);
         spatialGrid.clear();
 
@@ -66,7 +68,7 @@ public class TriangleRenderer {
                     Vector3D pixelWorldPos = GeometryUtils.getWorldPositionInTriangle(centerX, centerY,
                             closestTriangle);
                     Color finalColor = LightCalculator.calculatePixelColor(
-                            closestColor, closestTriangle, pixelWorldPos, pointLights
+                            closestColor, closestTriangle, pixelWorldPos, shadowLightSystem, ambienceLight
                     );
 
                     depthBuffer[x][y] = closestDepth;
@@ -86,7 +88,7 @@ public class TriangleRenderer {
 
     private static Color getTextureColor(double x, double y, Triangle triangle) {
         if (!triangle.hasUV()) {
-            return ColorConfiguration.BROKEN_MODEL_COLOR;
+            return ColorConfig.BROKEN_MODEL_COLOR;
         }
 
         Vector3D A = triangle.getPoints().get(0);
@@ -100,7 +102,7 @@ public class TriangleRenderer {
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
         if (Math.abs(denom) < 1e-9) {
-            return ColorConfiguration.BROKEN_MODEL_COLOR;
+            return ColorConfig.BROKEN_MODEL_COLOR;
         }
 
         double alpha = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denom;
@@ -114,7 +116,7 @@ public class TriangleRenderer {
         double interpolatedInvW = alpha * invW1 + beta * invW2 + gamma * invW3;
 
         if (Math.abs(interpolatedInvW) < 1e-9) {
-            return ColorConfiguration.NUMERICAL_ERROR_COLOR;
+            return ColorConfig.NUMERICAL_ERROR_COLOR;
         }
 
         Point2D uv1 = triangle.getUV1();

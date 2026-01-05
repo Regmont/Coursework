@@ -1,4 +1,6 @@
-package graphics.renderer;
+package geometry;
+
+import game.configuration.ColorConfig;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,18 +9,23 @@ public class Material {
     public static final Material DEFAULT_MATERIAL = new Material(Color.WHITE, false);
 
     private final Color color;
-    private final BufferedImage texture;
-    private boolean transparentForLight;
+    private BufferedImage texture;
+    private boolean transparentForLight = false;
 
     public Material(Color color, boolean transparentForLight) {
         this.color = color;
         this.transparentForLight = transparentForLight;
-        this.texture = null;
+        texture = null;
     }
 
     public Material(BufferedImage texture) {
-        this.color = null;
-        this.texture = texture;
+        if (texture == null) {
+            color = ColorConfig.BROKEN_MODEL_COLOR;
+        }
+        else {
+            color = null;
+            this.texture = texture;
+        }
     }
 
     public Color getColor() {

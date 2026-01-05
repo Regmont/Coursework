@@ -1,4 +1,5 @@
 package math;
+
 public class Vector3D {
     public static final Vector3D zeroVector = new Vector3D(0, 0, 0);
     public static final Vector3D unitVector = new Vector3D(1, 1, 1);
@@ -55,5 +56,17 @@ public class Vector3D {
 
     public double length() {
         return Math.sqrt(x * x + y * y + z * z);
+    }
+
+    public Vector3D cross(Vector3D other) {
+        return new Vector3D(
+                y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x
+        );
+    }
+
+    public Vector3D negate() {
+        return new Vector3D(-x, -y, -z);
     }
 }

@@ -1,70 +1,26 @@
 package scene;
 
 import game.configuration.GameConfig;
-import game.configuration.RenderingConfig;
+import graphics.CameraBase;
 import math.Vector3D;
-import org.joml.Matrix4d;
 
-public class Camera {
-    private Vector3D position;
-    private Vector3D rotation;
-    private final double speed;
+public class Camera extends CameraBase {
+    public static final Camera DEFAULT_CAMERA = new Camera(GameConfig.INITIAL_CAMERA_POSITION,
+            GameConfig.INITIAL_CAMERA_ROTATION);
 
-    public Camera() {
-        this.position = GameConfig.INITIAL_CAMERA_POSITION;
-        this.rotation = GameConfig.INITIAL_CAMERA_ROTATION;
+    private double speed;
+
+    public Camera(Vector3D position, Vector3D rotation) {
+        super(position, rotation);
         this.speed = GameConfig.CAMERA_SPEED;
-    }
-
-    public Vector3D getPosition() {
-        return position;
-    }
-
-    public Vector3D getRotation() {
-        return rotation;
-    }
-
-    public void setPosition(Vector3D position) {
-        this.position = position;
-    }
-
-    public void addRotation(double deltaYaw, double deltaPitch) {
-        double newYaw = rotation.getX() + deltaYaw;
-        double newPitch = rotation.getY() + deltaPitch;
-
-        newPitch = Math.max(RenderingConfig.MIN_PITCH, Math.min(RenderingConfig.MAX_PITCH, newPitch));
-
-        rotation = new Vector3D(newYaw, newPitch, rotation.getZ());
-    }
-
-    public Matrix4d getViewMatrix() {
-        Vector3D lookAt = getLookAtPoint();
-
-        return new Matrix4d().lookAt(
-                        position.getX(), position.getY(), position.getZ(),
-                        lookAt.getX(), lookAt.getY(), lookAt.getZ(),
-                        0, 1, 0);
-    }
-
-    public Matrix4d getProjectionMatrix(int screenWidth, int screenHeight) {
-        double aspectRatio = (double) screenWidth / screenHeight;
-
-        return new Matrix4d().perspective(RenderingConfig.FOV, aspectRatio, RenderingConfig.MAIN_CAMERA_NEAR,
-                RenderingConfig.MAIN_CAMERA_FAR);
+        fov = GameConfig.CAMERA_FOV;
     }
 
     public double getSpeed() {
         return speed;
     }
 
-    private Vector3D getLookAtPoint() {
-        double yaw = rotation.getX();
-        double pitch = rotation.getY();
-
-        double lookX = position.getX() + Math.cos(pitch) * Math.sin(yaw);
-        double lookY = position.getY() + Math.sin(pitch);
-        double lookZ = position.getZ() + Math.cos(pitch) * Math.cos(yaw);
-
-        return new Vector3D(lookX, lookY, lookZ);
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 }

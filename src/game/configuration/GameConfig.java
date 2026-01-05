@@ -5,9 +5,11 @@ import math.Vector3D;
 import java.awt.*;
 
 public class GameConfig {
-    public static final Vector3D INITIAL_CAMERA_POSITION = new Vector3D(0, 2, -10);
-    public static final Vector3D INITIAL_CAMERA_ROTATION = new Vector3D(0, 0, 0);
+    public static final Vector3D INITIAL_CAMERA_POSITION = Vector3D.zeroVector;
+    public static final Vector3D INITIAL_CAMERA_ROTATION = Vector3D.zeroVector;
     public static final double CAMERA_SPEED = 5.0;
+    public static final double CAMERA_FOV = Math.PI / 3; // Вертикальный угол обзора камеры (60°)
+
     public static final double MOUSE_SENSITIVITY = 0.003;
 
     public static final long MAX_FRAME_TIME_MS = 250; //Ограничение длительности кадра
@@ -17,6 +19,9 @@ public class GameConfig {
 
     public static final Color AMBIENCE_COLOR = Color.WHITE;
     public static final double AMBIENCE_INTENSITY = 0.5;
+
+    public static final Color POINT_LIGHT_COLOR = Color.YELLOW;
+    public static final double POINT_LIGHT_INTENSITY = 1.0;
 
     public static final Color SHADOW_COLOR = Color.BLUE;
     public static final double SHADOW_DARKNESS_FACTOR = 0.3;

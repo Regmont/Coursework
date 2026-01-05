@@ -1,7 +1,5 @@
 package geometry;
 
-import graphics.renderer.Material;
-
 import java.util.*;
 
 public record Mesh(List<Triangle> triangles) {

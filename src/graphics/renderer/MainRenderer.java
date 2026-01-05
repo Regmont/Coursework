@@ -2,7 +2,8 @@ package graphics.renderer;
 
 import geometry.*;
 import graphics.SceneSystem;
-import graphics.light.PointLight;
+import scene.PointLight;
+import graphics.light.ShadowLightSystem;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -19,8 +20,11 @@ public class MainRenderer {
         List<Mesh> meshes = sceneSystem.getTransformedMeshes(width, height);
         List<PointLight> pointLights = sceneSystem.getPointLights();
 
-        ShadowRenderer.renderShadowMaps(pointLights, sceneSystem.getInstances());
-        TriangleRenderer.renderTriangles(meshes, colorBuffer, depthBuffer, width, height, pointLights);
+        ShadowLightSystem shadowLightSystem = new ShadowLightSystem(pointLights);
+
+        ShadowRenderer.renderShadowMaps(shadowLightSystem, sceneSystem.getInstances());
+        TriangleRenderer.renderTriangles(meshes, colorBuffer, depthBuffer, width, height, shadowLightSystem,
+                sceneSystem.getAmbienceLight());
     }
 
     private static void clearBuffers(Color[][] colorBuffer, double[][] depthBuffer, Color backgroundColor) {

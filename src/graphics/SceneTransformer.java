@@ -1,5 +1,6 @@
 package graphics;
 
+import game.configuration.RenderingConfig;
 import geometry.Triangle;
 import scene.Camera;
 import geometry.Mesh;
@@ -16,8 +17,9 @@ public class SceneTransformer {
         List<Triangle> originalTriangles = mesh.triangles();
         ArrayList<Triangle> transformedTriangles = new ArrayList<>();
 
-        Matrix4d viewMatrix = camera.getViewMatrix();
-        Matrix4d projMatrix = camera.getProjectionMatrix(screenWidth, screenHeight);
+        Matrix4d viewMatrix = CameraBase.getViewMatrix(camera);
+        Matrix4d projMatrix = CameraBase.getProjectionMatrix(camera, screenWidth, screenHeight,
+                RenderingConfig.MAIN_CAMERA_NEAR, RenderingConfig.MAIN_CAMERA_FAR);
         Matrix4d mvpMatrix = projMatrix.mul(viewMatrix).mul(modelMatrix);
 
         for (Triangle triangle : originalTriangles) {

@@ -2,6 +2,7 @@ package game;
 
 import game.configuration.AppConfig;
 import game.configuration.GameConfig;
+import game.configuration.RenderingConfig;
 import game.input.InputSystem;
 import game.input.Keyboard;
 import game.input.Mouse;
@@ -101,8 +102,16 @@ public class GameController {
             int deltaY = mouse.getDeltaY();
 
             if (deltaX != 0 || deltaY != 0) {
-                camera.addRotation(-deltaX * GameConfig.MOUSE_SENSITIVITY,
-                        -deltaY * GameConfig.MOUSE_SENSITIVITY);
+                double deltaYaw = -deltaX * GameConfig.MOUSE_SENSITIVITY;
+                double deltaPitch = deltaY * GameConfig.MOUSE_SENSITIVITY;
+
+                double newPitch = camera.getTransform().getRotation().getX() + deltaPitch;
+                double newYaw = camera.getTransform().getRotation().getY() + deltaYaw;
+
+                newPitch = Math.max(RenderingConfig.MIN_PITCH, Math.min(RenderingConfig.MAX_PITCH, newPitch));
+
+                camera.getTransform().setRotation(new Vector3D(newPitch, newYaw,
+                        camera.getTransform().getRotation().getZ()));
                 cameraMoved = true;
             }
         }
@@ -140,8 +149,8 @@ public class GameController {
     }
 
     private void moveCamera(double forward, double right) {
-        Vector3D cameraPosition = camera.getPosition();
-        double yaw = camera.getRotation().getX();
+        Vector3D cameraPosition = camera.getTransform().getPosition();
+        double yaw = camera.getTransform().getRotation().getY();
 
         double x = cameraPosition.getX() +
                 forward * Math.sin(yaw) +
@@ -151,6 +160,6 @@ public class GameController {
                 forward * Math.cos(yaw) +
                 right * Math.cos(yaw + Math.PI / 2);
 
-        camera.setPosition(new Vector3D(x, cameraPosition.getY(), z));
+        camera.getTransform().setPosition(new Vector3D(x, cameraPosition.getY(), z));
     }
 }

@@ -3,37 +3,37 @@ package graphics.shadows;
 import math.Vector3D;
 
 public class ShadowCube {
-    private final ShadowCubeFace[] faces = new ShadowCubeFace[6];
+    private final ShadowCubeFace[] faces;
 
     public ShadowCube(Vector3D position) {
+        faces = new ShadowCubeFace[6];
+
         for (int i = 0; i < 6; i++) {
-            ShadowCamera camera = createCameraForFace(position, i);
+            Vector3D rotation = getRotationForFace(i);
+            ShadowCamera camera = new ShadowCamera(position, rotation);
             faces[i] = new ShadowCubeFace(camera);
         }
     }
 
-    private ShadowCamera createCameraForFace(Vector3D position, int faceIndex) {
-        Vector3D direction = getDirectionForFace(faceIndex);
-        return new ShadowCamera(position, direction);
-    }
-
-    private Vector3D getDirectionForFace(int faceIndex) {
-        return switch (faceIndex) {
-            case 0 -> new Vector3D(1, 0, 0);   // +X
-            case 1 -> new Vector3D(-1, 0, 0);  // -X
-            case 2 -> new Vector3D(0, 1, 0);   // +Y
-            case 3 -> new Vector3D(0, -1, 0);  // -Y
-            case 4 -> new Vector3D(0, 0, 1);   // +Z
-            case 5 -> new Vector3D(0, 0, -1);  // -Z
-            default -> Vector3D.zeroVector;
-        };
-    }
-
-    public ShadowCubeFace getFace(int index) {
-        return faces[index];
+    public void updatePosition(Vector3D newPosition) {
+        for (ShadowCubeFace face : faces) {
+            face.getCamera().getTransform().setPosition(newPosition);
+        }
     }
 
     public ShadowCubeFace[] getFaces() {
         return faces;
+    }
+
+    private Vector3D getRotationForFace(int faceIndex) {
+        return switch (faceIndex) {
+            case 0 -> new Vector3D(0, -Math.PI/2, 0);    // +X: yaw=-90°, pitch=0
+            case 1 -> new Vector3D(0, Math.PI/2, 0);     // -X: yaw=+90°, pitch=0
+            case 2 -> new Vector3D(-Math.PI/2, 0, 0);     // +Y: pitch=+90°, yaw=0
+            case 3 -> new Vector3D(Math.PI/2, 0, 0);    // -Y: pitch=-90°, yaw=0
+            case 4 -> new Vector3D(0, 0, 0);             // +Z: pitch=0, yaw=0
+            case 5 -> new Vector3D(0, Math.PI, 0);       // -Z: yaw=180°, pitch=0
+            default -> Vector3D.zeroVector;
+        };
     }
 }

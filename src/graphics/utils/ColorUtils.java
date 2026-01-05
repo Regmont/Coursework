@@ -1,8 +1,14 @@
 package graphics.utils;
 
+import scene.Sky;
+
 import java.awt.*;
 
 public class ColorUtils {
+    public static Color getSkyColor(Sky sky) {
+        return applyBrightness(sky.getColor(), sky.getBrightness());
+    }
+
     public static Color applyBrightnessWithColoredLight(Color originalColor, Color lightColor, double brightness) {
         int r = (int)(originalColor.getRed() * brightness * lightColor.getRed() / 255.0);
         int g = (int)(originalColor.getGreen() * brightness * lightColor.getGreen() / 255.0);

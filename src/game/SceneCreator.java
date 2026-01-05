@@ -1,9 +1,9 @@
 package game;
 
-import graphics.light.PointLight;
+import scene.PointLight;
 import scene.Object3D;
-import scene.ObjectInstance;
 import math.Vector3D;
+import scene.SimpleObject;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,35 +11,38 @@ import java.util.List;
 
 public class SceneCreator {
 
-    public static List<ObjectInstance> createDefaultScene() {
+    public static List<SimpleObject> createDefaultScene() {
         Object3D sphere = new Object3D("Sphere");
         Object3D cube = new Object3D("Cube");
-        Object3D terrain = new Object3D("Terrain");
+        Object3D terrain = new Object3D("Terrain", "Terrain");
 
-        List<ObjectInstance> instances = new ArrayList<>();
+        List<SimpleObject> objects = new ArrayList<>();
 
-        instances.add(new ObjectInstance(sphere, "Sphere 1",
-                new Vector3D(2, 0, 1), Vector3D.zeroVector, Vector3D.unitVector));
+        objects.add(new SimpleObject(sphere,
+                new Vector3D(2, 0, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
-        instances.add(new ObjectInstance(cube, "Cube 1",
+        objects.add(new SimpleObject(cube,
                 new Vector3D(0, -2, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
-        instances.add(new ObjectInstance(terrain, "Terrain",
+        objects.add(new SimpleObject(terrain,
                 new Vector3D(0, -4, 0), Vector3D.zeroVector, Vector3D.unitVector));
 
-        return instances;
+        return objects;
     }
 
     public static List<PointLight> createDefaultLight() {
         Object3D smallSphere = new Object3D("SmallSphere");
 
-        ObjectInstance light1 = new ObjectInstance(smallSphere, "Light 1",
+        SimpleObject light1 = new SimpleObject(smallSphere,
                 Vector3D.zeroVector, Vector3D.zeroVector, Vector3D.unitVector);
-        ObjectInstance light2 = new ObjectInstance(smallSphere, "Light 2",
+        SimpleObject light2 = new SimpleObject(smallSphere,
                 Vector3D.zeroVector, Vector3D.zeroVector, Vector3D.unitVector);
 
-        PointLight pointLight = new PointLight(new Vector3D(5, 5, 0), Color.RED, 1, light1);
-        PointLight pointLight2 = new PointLight(new Vector3D(0, 7, 3), Color.YELLOW, 1, light2);
+        PointLight pointLight = new PointLight(new Vector3D(3, 7, 0));
+        pointLight.setObject(light1);
+        pointLight.setColor(Color.RED);
+        PointLight pointLight2 = new PointLight(new Vector3D(-3, 7, 0));
+        pointLight2.setObject(light2);
 
         List<PointLight> pointLights = new ArrayList<>();
         pointLights.add(pointLight);

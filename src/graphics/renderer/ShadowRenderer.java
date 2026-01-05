@@ -1,33 +1,36 @@
 package graphics.renderer;
 
+import game.configuration.RenderingConfig;
 import geometry.Mesh;
 import geometry.Triangle;
-import graphics.light.PointLight;
+import graphics.CameraBase;
+import graphics.light.ShadowLightSystem;
 import graphics.shadows.ShadowCamera;
+import graphics.shadows.ShadowCube;
 import graphics.shadows.ShadowCubeFace;
 import math.Vector3D;
-import geometry.BoundingBox;
+import graphics.TriangleBoundingBox;
 import graphics.utils.GeometryUtils;
 import org.joml.Vector4d;
 import org.joml.Matrix4d;
-import scene.ObjectInstance;
+import scene.SimpleObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShadowRenderer {
 
-    public static void renderShadowMaps(List<PointLight> lights, List<ObjectInstance> instances) {
-        for (PointLight light : lights) {
-            for (ShadowCubeFace face : light.getShadowCube().getFaces()) {
+    public static void renderShadowMaps(ShadowLightSystem shadowLightSystem, List<SimpleObject> objects) {
+        for (ShadowCube cube : shadowLightSystem.getLightToShadowCube().values()) {
+            for (ShadowCubeFace face : cube.getFaces()) {
                 face.clearDepthBuffer();
 
                 ShadowCamera shadowCamera = face.getCamera();
                 int width = face.getDepthBuffer().length;
                 int height = face.getDepthBuffer()[0].length;
 
-                for (ObjectInstance instance : instances) {
-                    Mesh originalMesh = instance.getMesh();
+                for (SimpleObject object : objects) {
+                    Mesh originalMesh = object.getMesh();
 
                     boolean hasTransparentMaterial = originalMesh.triangles().stream()
                             .anyMatch(t -> t.getMaterial().isTransparentForLight());
@@ -36,7 +39,7 @@ public class ShadowRenderer {
                         continue;
                     }
 
-                    Matrix4d modelMatrix = instance.getModelMatrix();
+                    Matrix4d modelMatrix = object.getTransform().getModelMatrix();
 
                     Mesh shadowMesh = transformMeshForShadow(originalMesh, modelMatrix,
                             shadowCamera, width, height);
@@ -49,8 +52,10 @@ public class ShadowRenderer {
 
     private static Mesh transformMeshForShadow(Mesh originalMesh, Matrix4d modelMatrix,
                                                ShadowCamera shadowCamera, int width, int height) {
-        Matrix4d viewMatrix = shadowCamera.getViewMatrix();
-        Matrix4d projMatrix = shadowCamera.getProjectionMatrix();
+        Matrix4d viewMatrix = CameraBase.getViewMatrix(shadowCamera);
+        Matrix4d projMatrix = CameraBase.getProjectionMatrix(shadowCamera, RenderingConfig.SHADOW_MAP_RESOLUTION,
+                RenderingConfig.SHADOW_MAP_RESOLUTION, RenderingConfig.SHADOW_CAMERA_NEAR,
+                RenderingConfig.SHADOW_CAMERA_FAR);
         Matrix4d mvpMatrix = projMatrix.mul(viewMatrix).mul(modelMatrix);
 
         List<Triangle> originalTriangles = originalMesh.triangles();
@@ -102,14 +107,10 @@ public class ShadowRenderer {
             int width = depthBuffer.length;
             int height = depthBuffer[0].length;
 
-            BoundingBox boundingBox = triangle.getBoundingBox();
-            int minX = Math.max(0, boundingBox.minX());
-            int maxX = Math.min(width - 1, boundingBox.maxX());
-            int minY = Math.max(0, boundingBox.minY());
-            int maxY = Math.min(height - 1, boundingBox.maxY());
+            TriangleBoundingBox triangleBoundingBox = TriangleBoundingBox.clampToScreen(triangle.getBoundingBox(), width, height);
 
-            for (int y = minY; y <= maxY; y++) {
-                for (int x = minX; x <= maxX; x++) {
+            for (int y = triangleBoundingBox.minY(); y <= triangleBoundingBox.maxY(); y++) {
+                for (int x = triangleBoundingBox.minX(); x <= triangleBoundingBox.maxX(); x++) {
                     double centerX = x + 0.5;
                     double centerY = y + 0.5;
 

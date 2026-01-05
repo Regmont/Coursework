@@ -2,32 +2,36 @@ package graphics;
 
 import game.SceneCreator;
 import geometry.Mesh;
-import graphics.light.PointLight;
-import scene.Camera;
-import scene.ObjectInstance;
+import scene.*;
+import scene.PointLight;
 import org.joml.Matrix4d;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SceneSystem {
-    private final List<ObjectInstance> instances;
+    private final List<SimpleObject> objects;
     private final List<PointLight> lights;
-    private final Camera camera;
+    private Sky sky;
+    private AmbienceLight ambienceLight;
+    private Camera camera;
 
     public SceneSystem() {
-        this.camera = new Camera();
-        instances = SceneCreator.createDefaultScene();
+        objects = SceneCreator.createDefaultScene();
         lights = SceneCreator.createDefaultLight();
+
+        sky = Sky.DEFAULT_SKY;
+        ambienceLight = AmbienceLight.DEFAULT_AMBIENCE_LIGHT;
+        camera = Camera.DEFAULT_CAMERA;
     }
 
     public List<Mesh> getTransformedMeshes(int screenWidth, int screenHeight) {
         List<Mesh> meshes = new ArrayList<>();
 
-        for (ObjectInstance instance : instances) {
-            Matrix4d modelMatrix = instance.getModelMatrix();
+        for (SimpleObject object : objects) {
+            Matrix4d modelMatrix = object.getTransform().getModelMatrix();
 
-            Mesh originalMesh = instance.getMesh();
+            Mesh originalMesh = object.getMesh();
             Mesh transformedMesh = SceneTransformer.transformMesh(
                     originalMesh, modelMatrix, camera, screenWidth, screenHeight
             );
@@ -35,11 +39,11 @@ public class SceneSystem {
         }
 
         for (PointLight light : lights) {
-            if (light.hasObjectInstance()) {
-                ObjectInstance instance = light.getObjectInstance();
-                Matrix4d modelMatrix = instance.getModelMatrix();
+            if (light.hasObject()) {
+                SimpleObject object = light.getObject();
+                Matrix4d modelMatrix = object.getTransform().getModelMatrix();
                 Mesh transformedMesh = SceneTransformer.transformMesh(
-                        instance.getMesh(),
+                        object.getMesh(),
                         modelMatrix,
                         camera,
                         screenWidth,
@@ -56,11 +60,31 @@ public class SceneSystem {
         return lights;
     }
 
-    public List<ObjectInstance> getInstances() {
-        return instances;
+    public List<SimpleObject> getInstances() {
+        return objects;
+    }
+
+    public Sky getSky() {
+        return sky;
+    }
+
+    public AmbienceLight getAmbienceLight() {
+        return ambienceLight;
     }
 
     public Camera getCamera() {
         return camera;
+    }
+
+    public void setSky(Sky sky) {
+        this.sky = sky;
+    }
+
+    public void setAmbienceLight(AmbienceLight ambienceLight) {
+        this.ambienceLight = ambienceLight;
+    }
+
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 }

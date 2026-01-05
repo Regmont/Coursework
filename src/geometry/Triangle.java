@@ -1,7 +1,7 @@
 package geometry;
 
+import graphics.TriangleBoundingBox;
 import math.Vector3D;
-import graphics.renderer.Material;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class Triangle {
     private final double invW1;
     private final double invW2;
     private final double invW3;
-    private BoundingBox boundingBox;
+    private TriangleBoundingBox triangleBoundingBox;
 
     public Triangle(Vector3D point1, Vector3D point2, Vector3D point3,
                     Material material, Vector3D[] originalPoints,
@@ -83,9 +83,9 @@ public class Triangle {
     public Point2D getUV3() { return uv3; }
     public boolean hasUV() { return uv1 != null && uv2 != null && uv3 != null; }
 
-    public BoundingBox getBoundingBox() {
-        if (boundingBox != null) {
-            return boundingBox;
+    public TriangleBoundingBox getBoundingBox() {
+        if (triangleBoundingBox != null) {
+            return triangleBoundingBox;
         }
 
         double[] xs = {point1.getX(), point2.getX(), point3.getX()};
@@ -96,12 +96,12 @@ public class Triangle {
         double minY = Math.min(ys[0], Math.min(ys[1], ys[2]));
         double maxY = Math.max(ys[0], Math.max(ys[1], ys[2]));
 
-        boundingBox = new BoundingBox(
+        triangleBoundingBox = new TriangleBoundingBox(
                 (int)Math.floor(minX), (int)Math.ceil(maxX),
                 (int)Math.floor(minY), (int)Math.ceil(maxY)
         );
 
-        return boundingBox;
+        return triangleBoundingBox;
     }
 
     public boolean isVisibleFromCameraCenter() {

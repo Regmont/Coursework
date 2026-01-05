@@ -2,8 +2,7 @@ package scene;
 
 import geometry.Mesh;
 import geometry.OBJParser;
-import geometry.Triangle;
-import graphics.renderer.Material;
+import geometry.Material;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,17 +11,26 @@ import java.io.IOException;
 
 public class Object3D {
     private Mesh mesh;
-    private final String modelName;
 
     public Object3D(String modelName) {
-        this.modelName = modelName;
+        parseMeshFromFiles(modelName, modelName);
+    }
 
+    public Object3D(String modelName, String textureName) {
+        parseMeshFromFiles(modelName, textureName);
+    }
+
+    public Mesh getMesh() {
+        return mesh;
+    }
+
+    private void parseMeshFromFiles(String modelName, String textureName) {
         try {
             String modelPath = "models/" + modelName + ".obj";
 
             mesh = OBJParser.parseOBJ(modelPath);
 
-            String texturePath = "textures/" + modelName + ".png";
+            String texturePath = "textures/" + textureName + ".png";
             File textureFile = new File(texturePath);
 
             Material material;
@@ -31,19 +39,13 @@ public class Object3D {
                 BufferedImage texture = ImageIO.read(textureFile);
                 material = new Material(texture);
             } else {
-                material = new Material(game.configuration.ColorConfiguration.BROKEN_MODEL_COLOR, false);
+                material = new Material(null);
             }
 
-            for (Triangle triangle : mesh.triangles()) {
-                triangle.setMaterial(material);
-            }
+            mesh.setMaterial(material);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public Mesh getMesh() {
-        return mesh;
     }
 }

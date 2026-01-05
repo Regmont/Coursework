@@ -2,6 +2,7 @@ package graphics.renderer;
 
 import game.configuration.RenderingConfig;
 import geometry.*;
+import graphics.TriangleBoundingBox;
 
 import java.util.*;
 
@@ -35,12 +36,12 @@ public class SpatialGrid {
             return;
         }
 
-        BoundingBox boundingBox = triangle.getBoundingBox();
+        TriangleBoundingBox triangleBoundingBox = triangle.getBoundingBox();
 
-        int minCellX = Math.max(0, boundingBox.minX() / cellSize);
-        int maxCellX = Math.min(cols - 1, boundingBox.maxX() / cellSize);
-        int minCellY = Math.max(0, boundingBox.minY() / cellSize);
-        int maxCellY = Math.min(rows - 1, boundingBox.maxY() / cellSize);
+        int minCellX = Math.max(0, triangleBoundingBox.minX() / cellSize);
+        int maxCellX = Math.min(cols - 1, triangleBoundingBox.maxX() / cellSize);
+        int minCellY = Math.max(0, triangleBoundingBox.minY() / cellSize);
+        int maxCellY = Math.min(rows - 1, triangleBoundingBox.maxY() / cellSize);
 
         for (int cy = minCellY; cy <= maxCellY; cy++) {
             int rowOffset = cy * cols;
