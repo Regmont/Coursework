@@ -1,7 +1,6 @@
 package game;
 
-import graphics.SceneSystem;
-import math.Vector3D;
+import core.math.Vector3D;
 import scene.Camera;
 
 public class GameClient {

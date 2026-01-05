@@ -1,14 +1,16 @@
 package graphics.utils;
 
-import geometry.*;
-import math.Vector3D;
+import graphics.RenderableTriangle;
+import core.math.Triangle;
+import core.math.Vector3D;
+import graphics.TriangleBoundingBox;
 
 import java.util.List;
 
 public class GeometryUtils {
     private static final double EPSILON = 1e-9; //Погрешность вычисления координат
 
-    public static boolean isPointInTriangle(double px, double py, Triangle triangle) {
+    public static boolean isPointIn3DTriangle(double px, double py, Triangle<Vector3D> triangle) {
         List<Vector3D> points = triangle.getPoints();
         Vector3D p1 = points.get(0);
         Vector3D p2 = points.get(1);
@@ -28,7 +30,7 @@ public class GeometryUtils {
         return !(hasPositive && hasNegative);
     }
 
-    public static double calculateDepthAtPoint(double px, double py, Triangle triangle) {
+    public static double calculateDepthAtPoint(double px, double py, Triangle<Vector3D> triangle) {
         List<Vector3D> points = triangle.getPoints();
         Vector3D A = points.get(0);
         Vector3D B = points.get(1);
@@ -51,14 +53,14 @@ public class GeometryUtils {
         return u * z1 + v * z2 + w * z3;
     }
 
-    public static Vector3D getWorldPositionInTriangle(double px, double py, Triangle triangle) {
-        Vector3D[] worldPoints = triangle.getOriginalPoints();
+    public static Vector3D getWorldPositionInTriangle(double px, double py, RenderableTriangle triangle) {
+        List<Vector3D> worldPoints = triangle.getOriginalPoints();
 
-        if (worldPoints == null || worldPoints.length < 3) {
-            return triangle.getCenter();
+        if (worldPoints == null) {
+            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
         }
 
-        List<Vector3D> screenPoints = triangle.getPoints();
+        List<Vector3D> screenPoints = triangle.getCurrentPoints();
 
         double x1 = screenPoints.get(0).getX(), y1 = screenPoints.get(0).getY();
         double x2 = screenPoints.get(1).getX(), y2 = screenPoints.get(1).getY();
@@ -67,16 +69,18 @@ public class GeometryUtils {
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
         if (Math.abs(denom) < EPSILON) {
-            return triangle.getCenter();
+            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
         }
 
         double alpha = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3)) / denom;
         double beta = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3)) / denom;
         double gamma = 1 - alpha - beta;
 
-        double invW1 = triangle.getInvW1();
-        double invW2 = triangle.getInvW2();
-        double invW3 = triangle.getInvW3();
+        List<Double> invWs = triangle.getInvWs();
+
+        double invW1 = invWs.get(0);
+        double invW2 = invWs.get(1);
+        double invW3 = invWs.get(2);
 
         double weight1 = alpha * invW1;
         double weight2 = beta * invW2;
@@ -84,21 +88,38 @@ public class GeometryUtils {
         double totalWeight = weight1 + weight2 + weight3;
 
         if (Math.abs(totalWeight) < EPSILON) {
-            return triangle.getCenter();
+            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
         }
 
-        double wx = (alpha * worldPoints[0].getX() * invW1 +
-                beta * worldPoints[1].getX() * invW2 +
-                gamma * worldPoints[2].getX() * invW3) / totalWeight;
+        double wx = (alpha * worldPoints.get(0).getX() * invW1 +
+                beta * worldPoints.get(1).getX() * invW2 +
+                gamma * worldPoints.get(2).getX() * invW3) / totalWeight;
 
-        double wy = (alpha * worldPoints[0].getY() * invW1 +
-                beta * worldPoints[1].getY() * invW2 +
-                gamma * worldPoints[2].getY() * invW3) / totalWeight;
+        double wy = (alpha * worldPoints.get(0).getY() * invW1 +
+                beta * worldPoints.get(1).getY() * invW2 +
+                gamma * worldPoints.get(2).getY() * invW3) / totalWeight;
 
-        double wz = (alpha * worldPoints[0].getZ() * invW1 +
-                beta * worldPoints[1].getZ() * invW2 +
-                gamma * worldPoints[2].getZ() * invW3) / totalWeight;
+        double wz = (alpha * worldPoints.get(0).getZ() * invW1 +
+                beta * worldPoints.get(1).getZ() * invW2 +
+                gamma * worldPoints.get(2).getZ() * invW3) / totalWeight;
 
         return new Vector3D(wx, wy, wz);
+    }
+
+    public static TriangleBoundingBox getTriangleBoundingBox(Triangle<Vector3D> triangle) {
+        List<Vector3D> points = triangle.getPoints();
+
+        double[] xs = {points.get(0).getX(), points.get(1).getX(), points.get(2).getX()};
+        double[] ys = {points.get(0).getY(), points.get(1).getY(), points.get(2).getY()};
+
+        double minX = Math.min(xs[0], Math.min(xs[1], xs[2]));
+        double maxX = Math.max(xs[0], Math.max(xs[1], xs[2]));
+        double minY = Math.min(ys[0], Math.min(ys[1], ys[2]));
+        double maxY = Math.max(ys[0], Math.max(ys[1], ys[2]));
+
+        return new TriangleBoundingBox(
+                (int)Math.floor(minX), (int)Math.ceil(maxX),
+                (int)Math.floor(minY), (int)Math.ceil(maxY)
+        );
     }
 }

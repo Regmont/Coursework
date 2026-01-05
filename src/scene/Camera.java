@@ -1,8 +1,8 @@
 package scene;
 
 import game.configuration.GameConfig;
-import graphics.CameraBase;
-import math.Vector3D;
+import core.base.CameraBase;
+import core.math.Vector3D;
 
 public class Camera extends CameraBase {
     public static final Camera DEFAULT_CAMERA = new Camera(GameConfig.INITIAL_CAMERA_POSITION,

@@ -1,7 +1,8 @@
 package scene;
 
-import geometry.Mesh;
-import math.Vector3D;
+import graphics.Mesh;
+import core.base.ObjectInstance;
+import core.math.Vector3D;
 
 public class SimpleObject extends ObjectInstance {
     private final Mesh mesh;

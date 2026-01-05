@@ -1,8 +1,9 @@
 package scene;
 
 import game.configuration.GameConfig;
-import geometry.Material;
-import math.Vector3D;
+import graphics.Material;
+import core.base.ObjectInstance;
+import core.math.Vector3D;
 
 import java.awt.*;
 

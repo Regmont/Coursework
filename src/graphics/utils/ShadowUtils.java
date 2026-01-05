@@ -1,12 +1,12 @@
 package graphics.utils;
 
-import game.configuration.RenderingConfig;
+import graphics.RenderingConfig;
 import scene.PointLight;
-import graphics.CameraBase;
+import core.base.CameraBase;
 import graphics.shadows.ShadowCamera;
 import graphics.shadows.ShadowCube;
 import graphics.shadows.ShadowCubeFace;
-import math.Vector3D;
+import core.math.Vector3D;
 import org.joml.Matrix4d;
 import org.joml.Vector4d;
 

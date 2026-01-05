@@ -1,7 +1,6 @@
 package game;
 
 import game.configuration.AppConfig;
-import graphics.SceneSystem;
 import graphics.renderer.GameRenderer;
 
 import java.awt.*;

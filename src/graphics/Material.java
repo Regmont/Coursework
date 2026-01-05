@@ -1,6 +1,4 @@
-package geometry;
-
-import game.configuration.ColorConfig;
+package graphics;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

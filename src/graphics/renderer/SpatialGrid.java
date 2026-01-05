@@ -1,14 +1,15 @@
 package graphics.renderer;
 
-import game.configuration.RenderingConfig;
-import geometry.*;
+import graphics.RenderingConfig;
+import graphics.RenderableTriangle;
 import graphics.TriangleBoundingBox;
+import graphics.utils.GeometryUtils;
 
 import java.util.*;
 
 public class SpatialGrid {
     private final int cellSize;
-    private final List<Triangle>[] cells;
+    private final List<RenderableTriangle>[] cells;
     private final int cols;
     private final int rows;
 
@@ -18,7 +19,7 @@ public class SpatialGrid {
         this.cols = (screenWidth + cellSize - 1) / cellSize;
         this.rows = (screenHeight + cellSize - 1) / cellSize;
 
-        cells = (List<Triangle>[]) new List[cols * rows];
+        cells = (List<RenderableTriangle>[]) new List[cols * rows];
 
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new ArrayList<>();
@@ -26,17 +27,17 @@ public class SpatialGrid {
     }
 
     public void clear() {
-        for (List<Triangle> cell : cells) {
+        for (List<RenderableTriangle> cell : cells) {
             cell.clear();
         }
     }
 
-    public void addTriangle(Triangle triangle) {
+    public void addTriangle(RenderableTriangle triangle) {
         if (!triangle.isVisibleFromCameraCenter()) {
             return;
         }
 
-        TriangleBoundingBox triangleBoundingBox = triangle.getBoundingBox();
+        TriangleBoundingBox triangleBoundingBox = GeometryUtils.getTriangleBoundingBox(triangle.getCurrentTriangle());
 
         int minCellX = Math.max(0, triangleBoundingBox.minX() / cellSize);
         int maxCellX = Math.min(cols - 1, triangleBoundingBox.maxX() / cellSize);
@@ -52,7 +53,7 @@ public class SpatialGrid {
         }
     }
 
-    public List<Triangle> getTriangles(int x, int y) {
+    public List<RenderableTriangle> getTriangles(int x, int y) {
         int cellX = x / cellSize;
         int cellY = y / cellSize;
 

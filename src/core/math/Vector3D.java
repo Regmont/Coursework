@@ -1,4 +1,4 @@
-package math;
+package core.math;
 
 public class Vector3D {
     public static final Vector3D zeroVector = new Vector3D(0, 0, 0);
@@ -32,16 +32,8 @@ public class Vector3D {
         return z;
     }
 
-    public double dot(Vector3D other) {
-        return x * other.x + y * other.y + z * other.z;
-    }
-
-    public Vector3D subtract(Vector3D other) {
-        return new Vector3D(x - other.x, y - other.y, z - other.z);
-    }
-
-    public Vector3D add(Vector3D other) {
-        return new Vector3D(x + other.x, y + other.y, z + other.z);
+    public double length() {
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
     public Vector3D normalize() {
@@ -54,8 +46,16 @@ public class Vector3D {
         return new Vector3D(x / length, y / length, z / length);
     }
 
-    public double length() {
-        return Math.sqrt(x * x + y * y + z * z);
+    public double dot(Vector3D other) {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    public Vector3D subtract(Vector3D other) {
+        return new Vector3D(x - other.x, y - other.y, z - other.z);
+    }
+
+    public Vector3D add(Vector3D other) {
+        return new Vector3D(x + other.x, y + other.y, z + other.z);
     }
 
     public Vector3D cross(Vector3D other) {

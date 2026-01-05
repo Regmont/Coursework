@@ -1,8 +1,8 @@
-package graphics;
+package core.base;
 
-import math.Vector3D;
+import core.math.Vector3D;
+
 import org.joml.Matrix4d;
-import scene.ObjectInstance;
 
 public abstract class CameraBase extends ObjectInstance {
     protected double fov;

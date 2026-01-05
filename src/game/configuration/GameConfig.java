@@ -1,14 +1,20 @@
 package game.configuration;
 
-import math.Vector3D;
+import core.math.Vector3D;
 
 import java.awt.*;
 
 public class GameConfig {
+    public static final int TARGET_FPS = 60;
+
     public static final Vector3D INITIAL_CAMERA_POSITION = Vector3D.zeroVector;
     public static final Vector3D INITIAL_CAMERA_ROTATION = Vector3D.zeroVector;
     public static final double CAMERA_SPEED = 5.0;
     public static final double CAMERA_FOV = Math.PI / 3; // Вертикальный угол обзора камеры (60°)
+
+    //Вертикальный поворот главной камеры
+    public static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
+    public static final double MIN_PITCH = -Math.PI / 2.0 + 0.01; // -89.99°
 
     public static final double MOUSE_SENSITIVITY = 0.003;
 

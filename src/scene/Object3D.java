@@ -1,8 +1,7 @@
 package scene;
 
-import geometry.Mesh;
-import geometry.OBJParser;
-import geometry.Material;
+import graphics.Mesh;
+import graphics.Material;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

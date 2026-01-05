@@ -1,11 +1,12 @@
 package graphics.light;
 
 import game.configuration.GameConfig;
-import geometry.Triangle;
-import geometry.Material;
+import core.math.Triangle;
+import graphics.Material;
+import graphics.RenderableTriangle;
 import graphics.utils.ColorUtils;
 import graphics.utils.LightUtils;
-import math.Vector3D;
+import core.math.Vector3D;
 import graphics.utils.ShadowUtils;
 import scene.AmbienceLight;
 import scene.PointLight;
@@ -13,7 +14,7 @@ import scene.PointLight;
 import java.awt.Color;
 
 public class LightCalculator {
-    public static Color calculatePixelColor(Color baseColor, Triangle triangle,
+    public static Color calculatePixelColor(Color baseColor, RenderableTriangle triangle,
                                             Vector3D worldPos, ShadowLightSystem shadowLightSystem,
                                             AmbienceLight ambienceLight) {
         Material material = triangle.getMaterial();
@@ -50,8 +51,8 @@ public class LightCalculator {
         return color;
     }
 
-    private static boolean isTriangleBackFacingToLight(Triangle triangle, PointLight light) {
-        Vector3D triangleCenter = triangle.getCenter();
+    private static boolean isTriangleBackFacingToLight(RenderableTriangle triangle, PointLight light) {
+        Vector3D triangleCenter = Triangle.getTriangleCenter(triangle.getOriginalTriangle());
         Vector3D toLight = light.getTransform().getPosition().subtract(triangleCenter).normalize();
         Vector3D normal = triangle.getWorldNormal();
 
@@ -59,7 +60,7 @@ public class LightCalculator {
     }
 
     private static Color addLightContribution(Color currentColor, PointLight light,
-                                              Triangle triangle, Vector3D worldPos) {
+                                              RenderableTriangle triangle, Vector3D worldPos) {
         Color lightContribution = LightUtils.calculateLightContribution(light, triangle, worldPos);
         
         return blendAdditive(currentColor, lightContribution);

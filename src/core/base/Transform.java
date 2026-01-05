@@ -1,4 +1,6 @@
-package math;
+package core.base;
+
+import core.math.Vector3D;
 
 import org.joml.Matrix4d;
 import org.joml.Quaterniond;
@@ -9,7 +11,7 @@ public class Transform {
     private Vector3D rotation;
     private Vector3D scale;
 
-    public Transform(Vector3D position, Vector3D rotation, Vector3D scale) {
+    Transform(Vector3D position, Vector3D rotation, Vector3D scale) {
         this.position = position;
         this.rotation = rotation;
         this.scale = scale;

@@ -1,13 +1,13 @@
 package graphics.utils;
 
-import geometry.Triangle;
+import graphics.RenderableTriangle;
 import scene.PointLight;
-import math.Vector3D;
+import core.math.Vector3D;
 
 import java.awt.*;
 
 public class LightUtils {
-    public static Color calculateLightContribution(PointLight pointLight, Triangle triangle, Vector3D point) {
+    public static Color calculateLightContribution(PointLight pointLight, RenderableTriangle triangle, Vector3D point) {
         Vector3D normal = triangle.getWorldNormal();
         Color noLightContribution = Color.BLACK;
 

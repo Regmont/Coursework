@@ -2,7 +2,7 @@ package game;
 
 import scene.PointLight;
 import scene.Object3D;
-import math.Vector3D;
+import core.math.Vector3D;
 import scene.SimpleObject;
 
 import java.awt.*;

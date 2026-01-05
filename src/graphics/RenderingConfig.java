@@ -1,4 +1,6 @@
-package game.configuration;
+package graphics;
+
+import java.awt.*;
 
 public class RenderingConfig {
     public static final int SHADOW_MAP_RESOLUTION = 512;
@@ -6,9 +8,7 @@ public class RenderingConfig {
 
     public static final double SHADOW_BIAS = 0.0005; //Погрешность глубины точки при расчёте теней
 
-    //Вертикальный поворот главной камеры
-    public static final double MAX_PITCH = Math.PI / 2.0 - 0.01; // 89.99°
-    public static final double MIN_PITCH = -Math.PI / 2.0 + 0.01; // -89.99°
+
 
     public static final double SHADOW_CAMERA_FOV = Math.PI / 2; // Вертикальный угол обзора теневой камеры
 
@@ -17,4 +17,6 @@ public class RenderingConfig {
     public static final double MAIN_CAMERA_FAR = 100.0;
     public static final double SHADOW_CAMERA_NEAR = 0.1;
     public static final double SHADOW_CAMERA_FAR = 100.0;
+
+    public static final Color NUMERICAL_ERROR_COLOR = Color.RED;
 }

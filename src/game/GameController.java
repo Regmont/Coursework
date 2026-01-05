@@ -1,19 +1,16 @@
 package game;
 
-import game.configuration.AppConfig;
 import game.configuration.GameConfig;
-import game.configuration.RenderingConfig;
 import game.input.InputSystem;
 import game.input.Keyboard;
 import game.input.Mouse;
-import graphics.SceneSystem;
-import math.Vector3D;
+import core.math.Vector3D;
 import scene.Camera;
 
 import java.awt.*;
 
 public class GameController {
-    private final double FRAME_TIME_MS = 1000.0 / AppConfig.TARGET_FPS;
+    private final double FRAME_TIME_MS = 1000.0 / GameConfig.TARGET_FPS;
 
     private final Camera camera;
     private final MainWindow window;
@@ -108,7 +105,7 @@ public class GameController {
                 double newPitch = camera.getTransform().getRotation().getX() + deltaPitch;
                 double newYaw = camera.getTransform().getRotation().getY() + deltaYaw;
 
-                newPitch = Math.max(RenderingConfig.MIN_PITCH, Math.min(RenderingConfig.MAX_PITCH, newPitch));
+                newPitch = Math.max(GameConfig.MIN_PITCH, Math.min(GameConfig.MAX_PITCH, newPitch));
 
                 camera.getTransform().setRotation(new Vector3D(newPitch, newYaw,
                         camera.getTransform().getRotation().getZ()));

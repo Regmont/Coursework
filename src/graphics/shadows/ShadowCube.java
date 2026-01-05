@@ -1,6 +1,6 @@
 package graphics.shadows;
 
-import math.Vector3D;
+import core.math.Vector3D;
 
 public class ShadowCube {
     private final ShadowCubeFace[] faces;

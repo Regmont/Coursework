@@ -1,7 +1,6 @@
-package scene;
+package core.base;
 
-import math.Transform;
-import math.Vector3D;
+import core.math.Vector3D;
 
 public abstract class ObjectInstance {
     private final Transform transform;

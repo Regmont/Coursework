@@ -1,11 +1,14 @@
 package graphics.renderer;
 
-import game.configuration.ColorConfig;
-import geometry.*;
+import graphics.ColorConfig;
+import graphics.Material;
+import graphics.Mesh;
+import graphics.RenderableTriangle;
+import graphics.RenderingConfig;
 import graphics.light.ShadowLightSystem;
 import scene.AmbienceLight;
 import graphics.light.LightCalculator;
-import math.Vector3D;
+import core.math.Vector3D;
 import graphics.utils.GeometryUtils;
 
 import java.awt.*;
@@ -25,32 +28,32 @@ public class TriangleRenderer {
         spatialGrid.clear();
 
         for (Mesh mesh : meshes) {
-            for (Triangle triangle : mesh.triangles()) {
+            for (RenderableTriangle triangle : mesh.triangles()) {
                 spatialGrid.addTriangle(triangle);
             }
         }
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                List<Triangle> trianglesInCell = spatialGrid.getTriangles(x, y);
+                List<RenderableTriangle> trianglesInCell = spatialGrid.getTriangles(x, y);
 
                 if (trianglesInCell.isEmpty()) {
                     continue;
-                };
+                }
 
                 double centerX = x + 0.5;
                 double centerY = y + 0.5;
 
                 double closestDepth = Double.POSITIVE_INFINITY;
                 Color closestColor = null;
-                Triangle closestTriangle = null;
+                RenderableTriangle closestTriangle = null;
 
-                for (Triangle triangle : trianglesInCell) {
-                    if (!GeometryUtils.isPointInTriangle(centerX, centerY, triangle)) {
+                for (RenderableTriangle triangle : trianglesInCell) {
+                    if (!GeometryUtils.isPointIn3DTriangle(centerX, centerY, triangle.getCurrentTriangle())) {
                         continue;
                     }
 
-                    double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle);
+                    double depth = GeometryUtils.calculateDepthAtPoint(centerX, centerY, triangle.getCurrentTriangle());
 
                     if (depth >= closestDepth) {
                         continue;
@@ -86,14 +89,16 @@ public class TriangleRenderer {
         }
     }
 
-    private static Color getTextureColor(double x, double y, Triangle triangle) {
+    private static Color getTextureColor(double x, double y, RenderableTriangle triangle) {
         if (!triangle.hasUV()) {
             return ColorConfig.BROKEN_MODEL_COLOR;
         }
 
-        Vector3D A = triangle.getPoints().get(0);
-        Vector3D B = triangle.getPoints().get(1);
-        Vector3D C = triangle.getPoints().get(2);
+        List<Vector3D> points = triangle.getCurrentPoints();
+
+        Vector3D A = points.get(0);
+        Vector3D B = points.get(1);
+        Vector3D C = points.get(2);
 
         double x1 = A.getX(), y1 = A.getY();
         double x2 = B.getX(), y2 = B.getY();
@@ -109,19 +114,23 @@ public class TriangleRenderer {
         double beta = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denom;
         double gamma = 1 - alpha - beta;
 
-        double invW1 = triangle.getInvW1();
-        double invW2 = triangle.getInvW2();
-        double invW3 = triangle.getInvW3();
+        List<Double> invWs = triangle.getInvWs();
+
+        double invW1 = invWs.get(0);
+        double invW2 = invWs.get(1);
+        double invW3 = invWs.get(2);
 
         double interpolatedInvW = alpha * invW1 + beta * invW2 + gamma * invW3;
 
         if (Math.abs(interpolatedInvW) < 1e-9) {
-            return ColorConfig.NUMERICAL_ERROR_COLOR;
+            return RenderingConfig.NUMERICAL_ERROR_COLOR;
         }
 
-        Point2D uv1 = triangle.getUV1();
-        Point2D uv2 = triangle.getUV2();
-        Point2D uv3 = triangle.getUV3();
+        List<Point2D> uvs = triangle.getUVs();
+
+        Point2D uv1 = uvs.get(0);
+        Point2D uv2 = uvs.get(1);
+        Point2D uv3 = uvs.get(2);
 
         double uOverW = alpha * (uv1.getX() * invW1) +
                 beta * (uv2.getX() * invW2) +

@@ -1,7 +1,7 @@
 package graphics.light;
 
 import graphics.shadows.ShadowCube;
-import math.Vector3D;
+import core.math.Vector3D;
 import scene.PointLight;
 
 import java.util.HashMap;

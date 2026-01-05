@@ -1,6 +1,8 @@
-package geometry;
+package scene;
 
-import math.Vector3D;
+import graphics.Mesh;
+import graphics.RenderableTriangle;
+import core.math.Vector3D;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -13,7 +15,7 @@ public class OBJParser {
     public static Mesh parseOBJ(String filePath) throws IOException {
         List<Vector3D> vertices = new ArrayList<>();
         List<Point2D> texCoords = new ArrayList<>();
-        List<Triangle> triangles = new ArrayList<>();
+        List<RenderableTriangle> triangles = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -38,7 +40,7 @@ public class OBJParser {
                         texCoords.add(new Point2D.Double(u, v));
                     }
                     case "f" -> {
-                        Triangle triangle = getTriangle(parts, vertices, texCoords);
+                        RenderableTriangle triangle = getTriangle(parts, vertices, texCoords);
                         triangles.add(triangle);
                     }
                 }
@@ -48,7 +50,7 @@ public class OBJParser {
         return new Mesh(triangles);
     }
 
-    private static Triangle getTriangle(String[] parts, List<Vector3D> vertices, List<Point2D> texCoords) {
+    private static RenderableTriangle getTriangle(String[] parts, List<Vector3D> vertices, List<Point2D> texCoords) {
         String[] indices1 = parts[1].split("/");
         String[] indices2 = parts[2].split("/");
         String[] indices3 = parts[3].split("/");
@@ -61,6 +63,11 @@ public class OBJParser {
         Vector3D p2 = vertices.get(vIdx2);
         Vector3D p3 = vertices.get(vIdx3);
 
+        List<Vector3D> points = new ArrayList<>();
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
         int uvIdx1 = Integer.parseInt(indices1[1]) - 1;
         int uvIdx2 = Integer.parseInt(indices2[1]) - 1;
         int uvIdx3 = Integer.parseInt(indices3[1]) - 1;
@@ -69,6 +76,12 @@ public class OBJParser {
         Point2D uv2 = texCoords.get(uvIdx2);
         Point2D uv3 = texCoords.get(uvIdx3);
 
-        return new Triangle(p1, p2, p3, uv1, uv2, uv3);
+        List<Point2D> uvs = new ArrayList<>();
+
+        uvs.add(uv1);
+        uvs.add(uv2);
+        uvs.add(uv3);
+
+        return new RenderableTriangle(points, uvs);
     }
 }
