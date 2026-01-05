@@ -1,6 +1,6 @@
 package graphics.shadows;
 
-import graphics.RenderingConfig;
+import graphics.config.RenderingConfig;
 
 import java.util.Arrays;
 

@@ -1,6 +1,6 @@
 package graphics.renderer;
 
-import game.SceneSystem;
+import graphics.SceneSystem;
 import graphics.utils.ColorUtils;
 
 import java.awt.*;

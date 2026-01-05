@@ -1,25 +1,24 @@
 package graphics.renderer;
 
-import graphics.RenderingConfig;
-import graphics.Mesh;
-import graphics.RenderableTriangle;
 import core.base.CameraBase;
-import graphics.light.ShadowLightSystem;
+import scene.Mesh;
+import scene.RenderableTriangle;
+import scene.gameObjects.SimpleObject;
+import graphics.config.RenderingConfig;
 import graphics.shadows.ShadowCamera;
 import graphics.shadows.ShadowCube;
 import graphics.shadows.ShadowCubeFace;
 import core.math.Vector3D;
 import graphics.TriangleBoundingBox;
 import graphics.utils.GeometryUtils;
+
 import org.joml.Vector4d;
 import org.joml.Matrix4d;
-import scene.SimpleObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShadowRenderer {
-
     public static void renderShadowMaps(ShadowLightSystem shadowLightSystem, List<SimpleObject> objects) {
         for (ShadowCube cube : shadowLightSystem.getLightToShadowCube().values()) {
             for (ShadowCubeFace face : cube.getFaces()) {

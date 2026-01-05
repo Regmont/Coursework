@@ -1,14 +1,12 @@
 package graphics.renderer;
 
-import graphics.ColorConfig;
-import graphics.Material;
-import graphics.Mesh;
-import graphics.RenderableTriangle;
-import graphics.RenderingConfig;
-import graphics.light.ShadowLightSystem;
-import scene.AmbienceLight;
-import graphics.light.LightCalculator;
 import core.math.Vector3D;
+import scene.config.ColorConfig;
+import scene.Material;
+import scene.gameObjects.AmbienceLight;
+import scene.Mesh;
+import scene.RenderableTriangle;
+import graphics.config.RenderingConfig;
 import graphics.utils.GeometryUtils;
 
 import java.awt.*;

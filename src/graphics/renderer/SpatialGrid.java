@@ -1,7 +1,7 @@
 package graphics.renderer;
 
-import graphics.RenderingConfig;
-import graphics.RenderableTriangle;
+import scene.RenderableTriangle;
+import graphics.config.RenderingConfig;
 import graphics.TriangleBoundingBox;
 import graphics.utils.GeometryUtils;
 

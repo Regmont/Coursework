@@ -11,7 +11,7 @@ public class Transform {
     private Vector3D rotation;
     private Vector3D scale;
 
-    Transform(Vector3D position, Vector3D rotation, Vector3D scale) {
+    public Transform(Vector3D position, Vector3D rotation, Vector3D scale) {
         this.position = position;
         this.rotation = rotation;
         this.scale = scale;

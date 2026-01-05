@@ -1,10 +1,8 @@
 package graphics.renderer;
 
-import game.SceneSystem;
-import graphics.Mesh;
-import graphics.SceneTransformer;
-import scene.PointLight;
-import graphics.light.ShadowLightSystem;
+import graphics.SceneSystem;
+import scene.Mesh;
+import scene.gameObjects.PointLight;
 
 import java.awt.*;
 import java.util.Arrays;

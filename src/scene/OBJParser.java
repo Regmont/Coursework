@@ -1,7 +1,5 @@
 package scene;
 
-import graphics.Mesh;
-import graphics.RenderableTriangle;
 import core.math.Vector3D;
 
 import java.awt.geom.Point2D;

@@ -5,24 +5,23 @@ import game.input.InputSystem;
 import game.input.Keyboard;
 import game.input.Mouse;
 import core.math.Vector3D;
-import scene.Camera;
-
-import java.awt.*;
+import graphics.RenderingSystem;
+import graphics.SceneSystem;
+import scene.gameObjects.Camera;
 
 public class GameController {
     private final double FRAME_TIME_MS = 1000.0 / GameConfig.TARGET_FPS;
-
+    private final RenderingSystem renderingSystem;
     private final Camera camera;
-    private final MainWindow window;
     private final InputSystem inputSystem;
     private volatile boolean running;
     private Thread gameThread;
     private boolean cameraMoved = false;
 
-    public GameController(SceneSystem sceneSystem, MainWindow window) {
+    public GameController(SceneSystem sceneSystem, RenderingSystem renderingSystem) {
+        this.renderingSystem = renderingSystem;
         this.camera = sceneSystem.getCamera();
-        this.window = window;
-        this.inputSystem = new InputSystem(window);
+        this.inputSystem = new InputSystem(renderingSystem.getWindow());
     }
 
     public void startGameLoop() {
@@ -65,7 +64,7 @@ public class GameController {
             }
 
             if (cameraMoved) {
-                EventQueue.invokeLater(window::repaint);
+                renderingSystem.requestRepaint();
                 cameraMoved = false;
             }
 

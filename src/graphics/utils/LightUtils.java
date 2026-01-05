@@ -1,7 +1,7 @@
 package graphics.utils;
 
-import graphics.RenderableTriangle;
-import scene.PointLight;
+import scene.RenderableTriangle;
+import scene.gameObjects.PointLight;
 import core.math.Vector3D;
 
 import java.awt.*;

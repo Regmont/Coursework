@@ -1,6 +1,6 @@
 package graphics.shadows;
 
-import graphics.RenderingConfig;
+import graphics.config.RenderingConfig;
 import core.base.CameraBase;
 import core.math.Vector3D;
 

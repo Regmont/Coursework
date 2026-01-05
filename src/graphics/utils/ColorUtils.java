@@ -1,6 +1,6 @@
 package graphics.utils;
 
-import scene.Sky;
+import scene.gameObjects.Sky;
 
 import java.awt.*;
 

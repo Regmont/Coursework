@@ -1,6 +1,6 @@
 package graphics.utils;
 
-import graphics.RenderableTriangle;
+import scene.RenderableTriangle;
 import core.math.Triangle;
 import core.math.Vector3D;
 import graphics.TriangleBoundingBox;
