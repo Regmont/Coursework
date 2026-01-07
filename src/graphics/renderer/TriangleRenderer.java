@@ -1,6 +1,7 @@
 package graphics.renderer;
 
 import core.math.Vector3D;
+import graphics.shadows.ShadowLightSystem;
 import scene.config.ColorConfig;
 import scene.Material;
 import scene.gameObjects.AmbienceLight;
@@ -14,11 +15,44 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+/**
+ * Основной растеризатор треугольников.
+ * <p>
+ * Реализует z-buffer алгоритм с пространственным разбиением (spatial grid)
+ * для ускорения поиска треугольников. Поддерживает текстурирование,
+ * освещение, тени и перспективно-корректную интерполяцию.
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class TriangleRenderer {
     private static SpatialGrid spatialGrid;
     private static int lastWidth = -1;
     private static int lastHeight = -1;
 
+    /**
+     * Рендерит все треугольники в буферы.
+     * <p>
+     * Алгоритм:
+     * <ol>
+     *   <li>Создание/обновление пространственной сетки</li>
+     *   <li>Распределение треугольников по ячейкам сетки</li>
+     *   <li>Для каждого пикселя экрана:</li>
+     *   <li>Получение треугольников из соответствующей ячейки</li>
+     *   <li>Поиск ближайшего треугольника (z-buffer)</li>
+     *   <li>Получение цвета (текстура или материал)</li>
+     *   <li>Вычисление освещения с учетом теней</li>
+     *   <li>Запись в цветовой и глубинный буферы</li>
+     * </ol>
+     *
+     * @param meshes            список мешей для рендеринга
+     * @param colorBuffer       цветовой буфер [width][height]
+     * @param depthBuffer       глубинный буфер [width][height]
+     * @param width             ширина области рендеринга
+     * @param height            высота области рендеринга
+     * @param shadowLightSystem система теней
+     * @param ambienceLight     окружающее освещение
+     */
     public static void renderTriangles(List<Mesh> meshes, Color[][] colorBuffer, double[][] depthBuffer,
                                        int width, int height, ShadowLightSystem shadowLightSystem,
                                        AmbienceLight ambienceLight) {
@@ -79,6 +113,9 @@ public class TriangleRenderer {
         }
     }
 
+    /**
+     * Обновляет spatial grid при изменении размеров экрана.
+     */
     private static void updateSpatialGridIfSizeChanged(int width, int height) {
         if (spatialGrid == null || width != lastWidth || height != lastHeight) {
             spatialGrid = new SpatialGrid(width, height);
@@ -87,6 +124,17 @@ public class TriangleRenderer {
         }
     }
 
+    /**
+     * Получает цвет текстуры в точке треугольника.
+     * <p>
+     * Использует перспективно-корректную интерполяцию UV-координат
+     * с учетом invW (1/w) значений.
+     *
+     * @param x         экранная X-координата
+     * @param y         экранная Y-координата
+     * @param triangle  треугольник с UV-координатами
+     * @return цвет текстуры или цвет ошибки
+     */
     private static Color getTextureColor(double x, double y, RenderableTriangle triangle) {
         if (!triangle.hasUV()) {
             return ColorConfig.BROKEN_MODEL_COLOR;
@@ -98,9 +146,9 @@ public class TriangleRenderer {
         Vector3D B = points.get(1);
         Vector3D C = points.get(2);
 
-        double x1 = A.getX(), y1 = A.getY();
-        double x2 = B.getX(), y2 = B.getY();
-        double x3 = C.getX(), y3 = C.getY();
+        double x1 = A.x(), y1 = A.y();
+        double x2 = B.x(), y2 = B.y();
+        double x3 = C.x(), y3 = C.y();
 
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
@@ -147,6 +195,16 @@ public class TriangleRenderer {
         return sampleTexture(triangle.getMaterial().getTexture(), u, v);
     }
 
+    /**
+     * Сэмплирует текстуру по UV-координатам.
+     * <p>
+     * Использует nearest-neighbor фильтрацию.
+     *
+     * @param texture   изображение текстуры
+     * @param u         координата U [0, 1]
+     * @param v         координата V [0, 1]
+     * @return цвет текстуры в точке
+     */
     private static Color sampleTexture(Image texture, double u, double v) {
         u = Math.max(0, Math.min(1, u));
         v = Math.max(0, Math.min(1, v));

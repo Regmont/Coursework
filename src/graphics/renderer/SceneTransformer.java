@@ -15,7 +15,31 @@ import scene.gameObjects.SimpleObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Трансформатор сцены: преобразует объекты из мировых в экранные координаты.
+ * <p>
+ * Применяет цепочку преобразований (Model-View-Projection) ко всем объектам сцены,
+ * включая визуальные представления источников света.
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class SceneTransformer {
+    /**
+     * Преобразует все объекты сцены в экранные координаты.
+     * <p>
+     * Обрабатывает:
+     * <ul>
+     *   <li>Все обычные объекты сцены</li>
+     *   <li>Визуальные представления источников света (если есть)</li>
+     * </ul>
+     * Для каждого объекта применяет MVP-преобразование с текущей камерой.
+     *
+     * @param sceneSystem   система сцены
+     * @param screenWidth   ширина экрана в пикселях
+     * @param screenHeight  высота экрана в пикселях
+     * @return список мешей с вершинами в экранных координатах
+     */
     public static List<Mesh> getTransformedMeshes(SceneSystem sceneSystem, int screenWidth, int screenHeight) {
         List<Mesh> meshes = new ArrayList<>();
 
@@ -47,6 +71,25 @@ public class SceneTransformer {
         return meshes;
     }
 
+    /**
+     * Преобразует меш объекта из мировых в экранные координаты.
+     * <p>
+     * Выполняет:
+     * <ol>
+     *   <li>MVP-преобразование: Model → View → Projection (P * V * M)</li>
+     *   <li>Perspective divide (деление на w)</li>
+     *   <li>Преобразование NDC [-1,1] в экранные координаты [0, screenSize]</li>
+     *   <li>Сохранение invW (1/w) для перспективно-корректной интерполяции</li>
+     *   <li>Преобразование оригинальных вершин в мировые координаты (через Model)</li>
+     * </ol>
+     *
+     * @param mesh          исходный меш с вершинами в локальных координатах объекта
+     * @param modelMatrix   матрица модели объекта
+     * @param camera        камера для view/projection преобразований
+     * @param screenWidth   ширина экрана
+     * @param screenHeight  высота экрана
+     * @return меш с вершинами в экранных координатах и мировыми координатами
+     */
     public static Mesh transformMesh(Mesh mesh, Matrix4d modelMatrix, Camera camera,
                                      int screenWidth, int screenHeight) {
         List<RenderableTriangle> originalTriangles = mesh.triangles();
@@ -63,7 +106,7 @@ public class SceneTransformer {
             List<Double> invW = new ArrayList<>();
 
             for (int i = 0; i < 3; i++) {
-                Vector4d vec = new Vector4d(points.get(i).getX(), points.get(i).getY(), points.get(i).getZ(), 1.0);
+                Vector4d vec = new Vector4d(points.get(i).x(), points.get(i).y(), points.get(i).z(), 1.0);
                 vec = mvpMatrix.transform(vec);
 
                 if (vec.w <= 0.0) {
@@ -97,15 +140,21 @@ public class SceneTransformer {
                     invW
             );
 
-            transformedTriangle.getWorldNormal();
             transformedTriangles.add(transformedTriangle);
         }
 
         return new Mesh(transformedTriangles);
     }
 
+    /**
+     * Применяет матрицу модели к точке.
+     *
+     * @param modelMatrix   матрица модели
+     * @param point         точка в локальных координатах объекта
+     * @return точка в мировых координатах
+     */
     private static Vector3D applyWorldMatrix(Matrix4d modelMatrix, Vector3D point) {
-        Vector4d vec = new Vector4d(point.getX(), point.getY(), point.getZ(), 1.0);
+        Vector4d vec = new Vector4d(point.x(), point.y(), point.z(), 1.0);
         vec = modelMatrix.transform(vec);
 
         return new Vector3D(vec.x, vec.y, vec.z);

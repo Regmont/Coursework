@@ -3,22 +3,41 @@ package graphics.utils;
 import scene.RenderableTriangle;
 import core.math.Triangle;
 import core.math.Vector3D;
-import graphics.TriangleBoundingBox;
 
 import java.util.List;
 
+/**
+ * Утилиты для геометрических вычислений при растеризации.
+ * <p>
+ * Содержит методы для проверки принадлежности точки треугольнику, интерполяции глубины и мировых координат.
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class GeometryUtils {
-    private static final double EPSILON = 1e-9; //Погрешность вычисления координат
+    /** Погрешность для сравнений с плавающей точкой. */
+    private static final double EPSILON = 1e-9;
 
+    /**
+     * Проверяет, находится ли точка внутри треугольника в 2D пространстве.
+     * <p>
+     * Использует метод площадей (barycentric test). Для точки внутри треугольника
+     * все три ориентированные площади имеют одинаковый знак.
+     *
+     * @param px        X-координата точки
+     * @param py        Y-координата точки
+     * @param triangle  треугольник в экранных координатах
+     * @return {@code true} если точка находится внутри треугольника
+     */
     public static boolean isPointIn3DTriangle(double px, double py, Triangle<Vector3D> triangle) {
         List<Vector3D> points = triangle.getPoints();
         Vector3D p1 = points.get(0);
         Vector3D p2 = points.get(1);
         Vector3D p3 = points.get(2);
 
-        double x1 = p1.getX(), y1 = p1.getY();
-        double x2 = p2.getX(), y2 = p2.getY();
-        double x3 = p3.getX(), y3 = p3.getY();
+        double x1 = p1.x(), y1 = p1.y();
+        double x2 = p2.x(), y2 = p2.y();
+        double x3 = p3.x(), y3 = p3.y();
 
         double area1 = (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1);
         double area2 = (x3 - x2) * (py - y2) - (y3 - y2) * (px - x2);
@@ -30,15 +49,26 @@ public class GeometryUtils {
         return !(hasPositive && hasNegative);
     }
 
+    /**
+     * Вычисляет глубину (Z-координату) в точке внутри треугольника.
+     * <p>
+     * Использует барицентрическую интерполяцию по Z-координатам вершин.
+     * В случае вырожденного треугольника возвращает среднее значение.
+     *
+     * @param px        X-координата точки
+     * @param py        Y-координата точки
+     * @param triangle  треугольник в экранных координатах
+     * @return интерполированное значение глубины
+     */
     public static double calculateDepthAtPoint(double px, double py, Triangle<Vector3D> triangle) {
         List<Vector3D> points = triangle.getPoints();
         Vector3D A = points.get(0);
         Vector3D B = points.get(1);
         Vector3D C = points.get(2);
 
-        double x1 = A.getX(), y1 = A.getY(), z1 = A.getZ();
-        double x2 = B.getX(), y2 = B.getY(), z2 = B.getZ();
-        double x3 = C.getX(), y3 = C.getY(), z3 = C.getZ();
+        double x1 = A.x(), y1 = A.y(), z1 = A.z();
+        double x2 = B.x(), y2 = B.y(), z2 = B.z();
+        double x3 = C.x(), y3 = C.y(), z3 = C.z();
 
         double d = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
@@ -53,6 +83,18 @@ public class GeometryUtils {
         return u * z1 + v * z2 + w * z3;
     }
 
+    /**
+     * Восстанавливает мировые координаты точки внутри треугольника.
+     * <p>
+     * Использует перспективно-корректную барицентрическую интерполяцию
+     * с учетом обратных значений W-координаты (1/z).
+     * В случае вырожденного треугольника возвращает центр треугольника.
+     *
+     * @param px        X-координата точки в экранных координатах
+     * @param py        Y-координата точки в экранных координатах
+     * @param triangle  треугольник с информацией о мировых координатах и invW
+     * @return восстановленная позиция в мировых координатах
+     */
     public static Vector3D getWorldPositionInTriangle(double px, double py, RenderableTriangle triangle) {
         List<Vector3D> worldPoints = triangle.getOriginalPoints();
 
@@ -62,9 +104,9 @@ public class GeometryUtils {
 
         List<Vector3D> screenPoints = triangle.getCurrentPoints();
 
-        double x1 = screenPoints.get(0).getX(), y1 = screenPoints.get(0).getY();
-        double x2 = screenPoints.get(1).getX(), y2 = screenPoints.get(1).getY();
-        double x3 = screenPoints.get(2).getX(), y3 = screenPoints.get(2).getY();
+        double x1 = screenPoints.get(0).x(), y1 = screenPoints.get(0).y();
+        double x2 = screenPoints.get(1).x(), y2 = screenPoints.get(1).y();
+        double x3 = screenPoints.get(2).x(), y3 = screenPoints.get(2).y();
 
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
@@ -91,17 +133,17 @@ public class GeometryUtils {
             return Triangle.getCenter(triangle.getCurrentTriangle());
         }
 
-        double wx = (alpha * worldPoints.get(0).getX() * invW1 +
-                beta * worldPoints.get(1).getX() * invW2 +
-                gamma * worldPoints.get(2).getX() * invW3) / totalWeight;
+        double wx = (alpha * worldPoints.get(0).x() * invW1 +
+                beta * worldPoints.get(1).x() * invW2 +
+                gamma * worldPoints.get(2).x() * invW3) / totalWeight;
 
-        double wy = (alpha * worldPoints.get(0).getY() * invW1 +
-                beta * worldPoints.get(1).getY() * invW2 +
-                gamma * worldPoints.get(2).getY() * invW3) / totalWeight;
+        double wy = (alpha * worldPoints.get(0).y() * invW1 +
+                beta * worldPoints.get(1).y() * invW2 +
+                gamma * worldPoints.get(2).y() * invW3) / totalWeight;
 
-        double wz = (alpha * worldPoints.get(0).getZ() * invW1 +
-                beta * worldPoints.get(1).getZ() * invW2 +
-                gamma * worldPoints.get(2).getZ() * invW3) / totalWeight;
+        double wz = (alpha * worldPoints.get(0).z() * invW1 +
+                beta * worldPoints.get(1).z() * invW2 +
+                gamma * worldPoints.get(2).z() * invW3) / totalWeight;
 
         return new Vector3D(wx, wy, wz);
     }

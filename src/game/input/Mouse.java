@@ -1,11 +1,23 @@
 package game.input;
 
+import game.configuration.GameConfig;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 
+/**
+ * Обработчик мыши для управления камерой в стиле FPS.
+ * <p>
+ * Реализует capture-режим: при захвате курсор скрывается и центрируется,
+ * а движение мыши преобразуется в углы поворота камеры.
+ * Использует {@link Robot} для программного перемещения курсора.
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class Mouse {
     private boolean captured = false;
 
@@ -19,6 +31,11 @@ public class Mouse {
     private int centerX, centerY;
     private boolean needsCentering = false;
 
+    /**
+     * Создает обработчик мыши для указанного окна.
+     *
+     * @param window компонент окна для привязки слушателей
+     */
     public Mouse(Component window) {
         this.window = window;
 
@@ -57,6 +74,11 @@ public class Mouse {
         });
     }
 
+    /**
+     * Обновляет состояние мыши. Должен вызываться каждый кадр.
+     * <p>
+     * Центрирует курсор если требуется и сглаживает дельты движения.
+     */
     public void update() {
         lastDeltaX = deltaX;
         lastDeltaY = deltaY;
@@ -70,7 +92,7 @@ public class Mouse {
                         window.getLocationOnScreen().x + centerX,
                         window.getLocationOnScreen().y + centerY
                 );
-                Thread.sleep(0);
+                Thread.yield();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -82,20 +104,43 @@ public class Mouse {
         }
     }
 
+    /**
+     * Возвращает смещение мыши по оси X с момента последнего вызова
+     * и применяет сглаживание для оставшегося движения.
+     * <p>
+     * Сглаживание уменьшает дельту по экспоненциальному закону
+     * с коэффициентом {@link GameConfig#MOUSE_SMOOTHING_FACTOR}.
+     *
+     * @return смещение в пикселях (может быть отрицательным)
+     */
     public int getDeltaX() {
         int dx = lastDeltaX;
-        deltaX = deltaX * 2 / 3;
+        deltaX = (int)(deltaX * GameConfig.MOUSE_SMOOTHING_FACTOR);
 
         return dx;
     }
 
+    /**
+     * Возвращает смещение мыши по оси Y с момента последнего вызова
+     * и применяет сглаживание для оставшегося движения.
+     * <p>
+     * Сглаживание уменьшает дельту по экспоненциальному закону
+     * с коэффициентом {@link GameConfig#MOUSE_SMOOTHING_FACTOR}.
+     *
+     * @return смещение в пикселях (может быть отрицательным)
+     */
     public int getDeltaY() {
         int dy = lastDeltaY;
-        deltaY = deltaY * 2 / 3;
+        deltaY = (int)(deltaY * GameConfig.MOUSE_SMOOTHING_FACTOR);
 
         return dy;
     }
 
+    /**
+     * Захватывает мышь для управления камерой.
+     * <p>
+     * Скрывает курсор, сбрасывает накопленные дельты и активирует центрирование.
+     */
     public void capture() {
         captured = true;
         deltaX = 0;
@@ -112,12 +157,28 @@ public class Mouse {
         needsCentering = true;
     }
 
+    /**
+     * Освобождает мышь (возвращает стандартный курсор).
+     */
     public void release() {
         captured = false;
         window.setCursor(Cursor.getDefaultCursor());
     }
 
+    /**
+     * Проверяет, находится ли мышь в захваченном режиме.
+     *
+     * @return {@code true} если мышь захвачена
+     */
     public boolean isCaptured() {
         return captured;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Mouse[captured=%b, delta=(%d,%d), needsCentering=%b]",
+                captured, deltaX, deltaY, needsCentering
+        );
     }
 }

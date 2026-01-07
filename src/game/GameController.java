@@ -9,8 +9,22 @@ import graphics.RenderingSystem;
 import graphics.SceneSystem;
 import scene.gameObjects.Camera;
 
+/**
+ * Основной игровой контроллер, управляющий игровым циклом и вводом.
+ * <p>
+ * Реализует фиксированный шаг времени (fixed timestep) для обновления
+ * и управление камерой через клавиатуру и мышь.
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class GameController {
+    /**
+     * Длительность одного кадра в миллисекундах,
+     * вычисляется как {@code 1000 / TARGET_FPS}.
+     */
     private final double FRAME_TIME_MS = 1000.0 / GameConfig.TARGET_FPS;
+
     private final RenderingSystem renderingSystem;
     private final Camera camera;
     private final InputSystem inputSystem;
@@ -18,12 +32,21 @@ public class GameController {
     private Thread gameThread;
     private boolean cameraMoved = false;
 
+    /**
+     * Создает игровой контроллер для указанных систем.
+     *
+     * @param sceneSystem система сцены (для доступа к камере)
+     * @param renderingSystem система рендеринга (для запроса перерисовки)
+     */
     public GameController(SceneSystem sceneSystem, RenderingSystem renderingSystem) {
         this.renderingSystem = renderingSystem;
         this.camera = sceneSystem.getCamera();
         this.inputSystem = new InputSystem(renderingSystem.getWindow());
     }
 
+    /**
+     * Запускает игровой цикл в отдельном потоке.
+     */
     public void startGameLoop() {
         running = true;
 
@@ -31,6 +54,9 @@ public class GameController {
         gameThread.start();
     }
 
+    /**
+     * Останавливает игровой цикл и ожидает завершения потока.
+     */
     public void stopGameLoop() {
         running = false;
 
@@ -43,6 +69,18 @@ public class GameController {
         }
     }
 
+    /**
+     * Основной игровой цикл с фиксированным шагом времени.
+     * <p>
+     * Алгоритм:
+     * <ol>
+     *   <li>Измерение прошедшего времени</li>
+     *   <li>Накопление времени в аккумуляторе</li>
+     *   <li>Выполнение обновлений с фиксированным шагом</li>
+     *   <li>Запрос перерисовки при движении камеры</li>
+     *   <li>Регулировка FPS через sleep</li>
+     * </ol>
+     */
     private void gameLoop() {
         long lastTime = System.nanoTime();
         double accumulator = 0;
@@ -81,6 +119,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Обновляет состояние игры за один фиксированный шаг.
+     *
+     * @param deltaTime время шага в секундах
+     */
     private void update(double deltaTime) {
         Keyboard keyboard = inputSystem.getKeyboard();
         Mouse mouse = inputSystem.getMouse();
@@ -101,13 +144,13 @@ public class GameController {
                 double deltaYaw = -deltaX * GameConfig.MOUSE_SENSITIVITY;
                 double deltaPitch = deltaY * GameConfig.MOUSE_SENSITIVITY;
 
-                double newPitch = camera.getTransform().getRotation().getX() + deltaPitch;
-                double newYaw = camera.getTransform().getRotation().getY() + deltaYaw;
+                double newPitch = camera.getTransform().getRotation().x() + deltaPitch;
+                double newYaw = camera.getTransform().getRotation().y() + deltaYaw;
 
                 newPitch = Math.max(GameConfig.MIN_PITCH, Math.min(GameConfig.MAX_PITCH, newPitch));
 
                 camera.getTransform().setRotation(new Vector3D(newPitch, newYaw,
-                        camera.getTransform().getRotation().getZ()));
+                        camera.getTransform().getRotation().z()));
                 cameraMoved = true;
             }
         }
@@ -120,6 +163,11 @@ public class GameController {
         inputSystem.update();
     }
 
+    /**
+     * Обновляет позицию камеры на основе нажатых клавиш WASD.
+     *
+     * @param deltaTime время шага в секундах
+     */
     private void updateCameraPosition(double deltaTime) {
         Keyboard keyboard = inputSystem.getKeyboard();
 
@@ -144,18 +192,36 @@ public class GameController {
         moveCamera(forward, right);
     }
 
+    /**
+     * Перемещает камеру в мировых координатах.
+     * <p>
+     * Движение учитывает текущий yaw (поворот по Y) камеры.
+     *
+     * @param forward   движение вперед/назад
+     * @param right     движение влево/вправо
+     */
     private void moveCamera(double forward, double right) {
         Vector3D cameraPosition = camera.getTransform().getPosition();
-        double yaw = camera.getTransform().getRotation().getY();
+        double yaw = camera.getTransform().getRotation().y();
 
-        double x = cameraPosition.getX() +
+        double x = cameraPosition.x() +
                 forward * Math.sin(yaw) +
                 right * Math.sin(yaw + Math.PI / 2);
 
-        double z = cameraPosition.getZ() +
+        double z = cameraPosition.z() +
                 forward * Math.cos(yaw) +
                 right * Math.cos(yaw + Math.PI / 2);
 
-        camera.getTransform().setPosition(new Vector3D(x, cameraPosition.getY(), z));
+        camera.getTransform().setPosition(new Vector3D(x, cameraPosition.y(), z));
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "GameController[running=%b, camera=%s, input=%s]",
+                running,
+                camera,
+                inputSystem
+        );
     }
 }

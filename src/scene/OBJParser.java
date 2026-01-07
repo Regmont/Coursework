@@ -9,7 +9,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Парсер файлов формата Wavefront OBJ.
+ * <p>
+ * Поддерживает загрузку 3D моделей с текстурами из OBJ файлов.
+ * Формат OBJ должен содержать вершины (v), текстурные координаты (vt) и грани (f).
+ *
+ * @author Дунин Михаил Сергеевич
+ * @version 1.0
+ */
 public class OBJParser {
+    /**
+     * Парсит файл формата Wavefront OBJ и создает из него объект {@link Mesh}.
+     * <p>
+     * Ожидает файл с расширением .obj следующего формата:
+     * <pre>
+     * v 1.0 2.0 3.0        # Вершина (x, y, z)
+     * vt 0.5 0.5           # UV-координата (u, v)
+     * f 1/1 2/2 3/3        # Грань: vertex_index/texture_index
+     * </pre>
+     * <p>
+     * Требования к файлу:
+     * - Должен содержать хотя бы один треугольник
+     * - UV-координаты должны быть заданы для всех вершин граней
+     * - Грань должна содержать ровно 3 вершины (только треугольники)
+     *
+     * @param filePath путь к OBJ файлу
+     * @return объект Mesh, содержащий все треугольники модели
+     * @throws IOException если файл не найден или произошла ошибка чтения
+     * @throws IllegalArgumentException если формат файла не соответствует ожиданиям
+     */
     public static Mesh parseOBJ(String filePath) throws IOException {
         List<Vector3D> vertices = new ArrayList<>();
         List<Point2D> texCoords = new ArrayList<>();
@@ -48,6 +77,21 @@ public class OBJParser {
         return new Mesh(triangles);
     }
 
+    /**
+     * Создает треугольник из строки грани OBJ формата.
+     * <p>
+     * Формат строки грани: {@code f v1/vt1 v2/vt2 v3/vt3}
+     * где v1, v2, v3 - индексы вершин, vt1, vt2, vt3 - индексы текстурных координат.
+     * <p>
+     * Пример: {@code f 1/2 3/4 5/6}
+     *
+     * @param parts разделенная строка грани
+     * @param vertices список всех вершин модели
+     * @param texCoords список всех текстурных координат
+     * @return готовый RenderableTriangle
+     * @throws NumberFormatException если индексы не являются числами
+     * @throws IndexOutOfBoundsException если индексы выходят за пределы списков
+     */
     private static RenderableTriangle getTriangle(String[] parts, List<Vector3D> vertices, List<Point2D> texCoords) {
         String[] indices1 = parts[1].split("/");
         String[] indices2 = parts[2].split("/");
