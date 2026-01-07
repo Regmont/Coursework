@@ -37,7 +37,7 @@ public class SpatialGrid {
             return;
         }
 
-        TriangleBoundingBox triangleBoundingBox = GeometryUtils.getTriangleBoundingBox(triangle.getCurrentTriangle());
+        TriangleBoundingBox triangleBoundingBox = TriangleBoundingBox.getBoundingBox(triangle.getCurrentTriangle());
 
         int minCellX = Math.max(0, triangleBoundingBox.minX() / cellSize);
         int maxCellX = Math.min(cols - 1, triangleBoundingBox.maxX() / cellSize);

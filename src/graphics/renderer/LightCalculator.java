@@ -52,7 +52,7 @@ public class LightCalculator {
     }
 
     private static boolean isTriangleBackFacingToLight(RenderableTriangle triangle, PointLight light) {
-        Vector3D triangleCenter = Triangle.getTriangleCenter(triangle.getOriginalTriangle());
+        Vector3D triangleCenter = Triangle.getCenter(triangle.getOriginalTriangle());
         Vector3D toLight = light.getTransform().getPosition().subtract(triangleCenter).normalize();
         Vector3D normal = triangle.getWorldNormal();
 

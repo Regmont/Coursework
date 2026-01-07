@@ -23,10 +23,7 @@ public class RenderableTriangle {
         this.uvs = new Triangle<>(uvs);
         this.invWs = new Triangle<>(invWs);
         this.cameraNormal = null;
-
-        if (originalPoints.size() == 3) {
-            this.worldNormal = calculateWorldNormal();
-        }
+        this.worldNormal = calculateWorldNormal();
     }
 
     public RenderableTriangle(List<Vector3D> originalPoints, List<Point2D> uvs) {
@@ -78,15 +75,11 @@ public class RenderableTriangle {
     }
 
     public Vector3D getWorldNormal() {
-        return worldNormal != null ? new Vector3D(worldNormal) : calculateCameraNormal();
+        return new Vector3D(worldNormal);
     }
 
     private Vector3D calculateWorldNormal() {
         List<Vector3D> points = originalPoints.getPoints();
-
-        if (points == null) {
-            return null;
-        }
 
         return Triangle.calculateNormal(points.get(0), points.get(1), points.get(2));
     }

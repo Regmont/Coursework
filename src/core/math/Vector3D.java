@@ -37,7 +37,7 @@ public class Vector3D {
     }
 
     public Vector3D normalize() {
-        double length = Math.sqrt(x * x + y * y + z * z);
+        double length = length();
 
         if (length == 0) {
             return this;

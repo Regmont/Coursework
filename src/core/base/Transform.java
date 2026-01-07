@@ -60,18 +60,6 @@ public class Transform {
         return new Vector3D(localForward.x, localForward.y, localForward.z).normalize();
     }
 
-    public Vector3D getRight() {
-        Quaterniond q = new Quaterniond()
-                .rotateY(rotation.getY())
-                .rotateX(rotation.getX())
-                .rotateZ(rotation.getZ());
-
-        Vector3d localRight = new Vector3d(1, 0, 0);
-        q.transform(localRight);
-
-        return new Vector3D(localRight.x, localRight.y, localRight.z).normalize();
-    }
-
     public Vector3D getUp() {
         Quaterniond q = new Quaterniond()
                 .rotateY(rotation.getY())
@@ -82,5 +70,9 @@ public class Transform {
         q.transform(localUp);
 
         return new Vector3D(localUp.x, localUp.y, localUp.z).normalize();
+    }
+
+    public Vector3D getRight() {
+        return getForward().cross(getUp()).normalize();
     }
 }

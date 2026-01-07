@@ -11,8 +11,8 @@ public class SceneConfig {
     public static final Color POINT_LIGHT_COLOR = Color.YELLOW;
     public static final double POINT_LIGHT_INTENSITY = 1.0;
 
-    public static final Color BACKGROUND_COLOR = Color.BLUE;
-    public static final double BACKGROUND_BRIGHTNESS = 0.8;
+    public static final Color BACKGROUND_COLOR = Color.CYAN;
+    public static final double BACKGROUND_BRIGHTNESS = 0.6;
 
     public static final Vector3D INITIAL_CAMERA_POSITION = Vector3D.zeroVector;
     public static final Vector3D INITIAL_CAMERA_ROTATION = Vector3D.zeroVector;

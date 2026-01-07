@@ -23,7 +23,6 @@ public class PointLight extends ObjectInstance {
         return object != null;
     }
 
-
     public SimpleObject getObject() {
         return object;
     }
@@ -44,7 +43,10 @@ public class PointLight extends ObjectInstance {
 
     public void setColor(Color color) {
         this.color = color;
-        object.getMesh().setMaterial(new Material(color, true));
+
+        if (object != null) {
+            object.getMesh().setMaterial(new Material(color, true));
+        }
     }
 
     public void setIntensity(double intensity) {

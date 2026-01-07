@@ -57,7 +57,7 @@ public class GeometryUtils {
         List<Vector3D> worldPoints = triangle.getOriginalPoints();
 
         if (worldPoints == null) {
-            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
+            return Triangle.getCenter(triangle.getCurrentTriangle());
         }
 
         List<Vector3D> screenPoints = triangle.getCurrentPoints();
@@ -69,7 +69,7 @@ public class GeometryUtils {
         double denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3);
 
         if (Math.abs(denom) < EPSILON) {
-            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
+            return Triangle.getCenter(triangle.getCurrentTriangle());
         }
 
         double alpha = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3)) / denom;
@@ -88,7 +88,7 @@ public class GeometryUtils {
         double totalWeight = weight1 + weight2 + weight3;
 
         if (Math.abs(totalWeight) < EPSILON) {
-            return Triangle.getTriangleCenter(triangle.getCurrentTriangle());
+            return Triangle.getCenter(triangle.getCurrentTriangle());
         }
 
         double wx = (alpha * worldPoints.get(0).getX() * invW1 +
@@ -104,22 +104,5 @@ public class GeometryUtils {
                 gamma * worldPoints.get(2).getZ() * invW3) / totalWeight;
 
         return new Vector3D(wx, wy, wz);
-    }
-
-    public static TriangleBoundingBox getTriangleBoundingBox(Triangle<Vector3D> triangle) {
-        List<Vector3D> points = triangle.getPoints();
-
-        double[] xs = {points.get(0).getX(), points.get(1).getX(), points.get(2).getX()};
-        double[] ys = {points.get(0).getY(), points.get(1).getY(), points.get(2).getY()};
-
-        double minX = Math.min(xs[0], Math.min(xs[1], xs[2]));
-        double maxX = Math.max(xs[0], Math.max(xs[1], xs[2]));
-        double minY = Math.min(ys[0], Math.min(ys[1], ys[2]));
-        double maxY = Math.max(ys[0], Math.max(ys[1], ys[2]));
-
-        return new TriangleBoundingBox(
-                (int)Math.floor(minX), (int)Math.ceil(maxX),
-                (int)Math.floor(minY), (int)Math.ceil(maxY)
-        );
     }
 }

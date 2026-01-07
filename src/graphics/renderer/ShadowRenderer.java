@@ -106,7 +106,7 @@ public class ShadowRenderer {
             int height = depthBuffer[0].length;
 
             TriangleBoundingBox triangleBoundingBox = TriangleBoundingBox.clampToScreen(
-                    GeometryUtils.getTriangleBoundingBox(triangle.getCurrentTriangle()), width, height);
+                    TriangleBoundingBox.getBoundingBox(triangle.getCurrentTriangle()), width, height);
 
             for (int y = triangleBoundingBox.minY(); y <= triangleBoundingBox.maxY(); y++) {
                 for (int x = triangleBoundingBox.minX(); x <= triangleBoundingBox.maxX(); x++) {

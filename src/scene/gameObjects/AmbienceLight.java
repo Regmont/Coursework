@@ -5,8 +5,8 @@ import scene.config.SceneConfig;
 import java.awt.Color;
 
 public class AmbienceLight {
-    public static final AmbienceLight DEFAULT_AMBIENCE_LIGHT = new AmbienceLight(SceneConfig.AMBIENCE_COLOR,
-            SceneConfig.AMBIENCE_INTENSITY);
+    public static final AmbienceLight DEFAULT_AMBIENCE_LIGHT =
+            new AmbienceLight(SceneConfig.AMBIENCE_COLOR, SceneConfig.AMBIENCE_INTENSITY);
 
     private Color color;
     private double intensity;

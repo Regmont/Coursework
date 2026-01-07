@@ -30,43 +30,19 @@ public class Triangle<T> {
         return points;
     }
 
-    public T getPoint(int index) {
-        return switch (index) {
-            case 0 -> point1;
-            case 1 -> point2;
-            case 2 -> point3;
-            default -> null;
-        };
-    }
-
     public static Vector3D calculateNormal(Vector3D p1, Vector3D p2, Vector3D p3) {
-        double v1x = p2.getX() - p1.getX();
-        double v1y = p2.getY() - p1.getY();
-        double v1z = p2.getZ() - p1.getZ();
+        Vector3D v1 = p2.subtract(p1);
+        Vector3D v2 = p3.subtract(p1);
 
-        double v2x = p3.getX() - p1.getX();
-        double v2y = p3.getY() - p1.getY();
-        double v2z = p3.getZ() - p1.getZ();
-
-        double nx = v1y * v2z - v1z * v2y;
-        double ny = v1z * v2x - v1x * v2z;
-        double nz = v1x * v2y - v1y * v2x;
-
-        double length = Math.sqrt(nx * nx + ny * ny + nz * nz);
-
-        if (length > 0) {
-            nx /= length;
-            ny /= length;
-            nz /= length;
-        }
-
-        return new Vector3D(nx, ny, nz);
+        return v1.cross(v2).normalize();
     }
 
-    public static Vector3D getTriangleCenter(Triangle<Vector3D> triangle) {
-        Vector3D p1 = triangle.getPoint(0);
-        Vector3D p2 = triangle.getPoint(1);
-        Vector3D p3 = triangle.getPoint(2);
+    public static Vector3D getCenter(Triangle<Vector3D> triangle) {
+        List<Vector3D> points = triangle.getPoints();
+
+        Vector3D p1 = points.get(0);
+        Vector3D p2 = points.get(1);
+        Vector3D p3 = points.get(2);
 
         return new Vector3D(
                 (p1.getX() + p2.getX() + p3.getX()) / 3.0,

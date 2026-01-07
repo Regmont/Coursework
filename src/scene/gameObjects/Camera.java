@@ -5,8 +5,8 @@ import core.math.Vector3D;
 import scene.config.SceneConfig;
 
 public class Camera extends CameraBase {
-    public static final Camera DEFAULT_CAMERA = new Camera(SceneConfig.INITIAL_CAMERA_POSITION,
-            SceneConfig.INITIAL_CAMERA_ROTATION);
+    public static final Camera DEFAULT_CAMERA =
+            new Camera(SceneConfig.INITIAL_CAMERA_POSITION, SceneConfig.INITIAL_CAMERA_ROTATION);
 
     private double speed;
 
