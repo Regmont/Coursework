@@ -6,7 +6,7 @@ import game.input.Keyboard;
 import game.input.Mouse;
 import core.math.Vector3D;
 import graphics.RenderingSystem;
-import graphics.SceneSystem;
+import scene.SceneSystem;
 import scene.gameObjects.Camera;
 
 /**

@@ -1,6 +1,7 @@
 package graphics.renderer;
 
-import graphics.SceneSystem;
+import graphics.shadows.ShadowRenderer;
+import scene.SceneSystem;
 import graphics.shadows.ShadowLightSystem;
 import scene.Mesh;
 import scene.gameObjects.PointLight;

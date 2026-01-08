@@ -1,4 +1,4 @@
-package graphics;
+package scene;
 
 import scene.gameObjects.*;
 

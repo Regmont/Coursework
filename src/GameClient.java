@@ -1,7 +1,7 @@
 import core.math.Vector3D;
 import game.GameController;
 import graphics.RenderingSystem;
-import graphics.SceneSystem;
+import scene.SceneSystem;
 import scene.gameObjects.Camera;
 
 /**

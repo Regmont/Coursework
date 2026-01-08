@@ -1,6 +1,7 @@
 package graphics;
 
 import graphics.renderer.GameRenderer;
+import scene.SceneSystem;
 
 import java.awt.*;
 import java.awt.event.*;

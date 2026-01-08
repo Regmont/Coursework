@@ -1,14 +1,10 @@
-package graphics.renderer;
+package graphics.shadows;
 
 import core.base.CameraBase;
-import graphics.shadows.ShadowLightSystem;
 import scene.Mesh;
 import scene.RenderableTriangle;
 import scene.gameObjects.SimpleObject;
 import graphics.config.RenderingConfig;
-import graphics.shadows.ShadowCamera;
-import graphics.shadows.ShadowCube;
-import graphics.shadows.ShadowCubeFace;
 import core.math.Vector3D;
 import graphics.TriangleBoundingBox;
 import graphics.utils.GeometryUtils;

@@ -4,7 +4,7 @@ import core.base.CameraBase;
 import core.math.Vector3D;
 
 import graphics.config.RenderingConfig;
-import graphics.SceneSystem;
+import scene.SceneSystem;
 import org.joml.Matrix4d;
 import org.joml.Vector4d;
 import scene.*;

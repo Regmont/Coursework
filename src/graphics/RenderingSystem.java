@@ -1,6 +1,7 @@
 package graphics;
 
 import graphics.config.AppConfig;
+import scene.SceneSystem;
 
 /**
  * Основная система рендеринга, управляющая окном приложения.
