@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Класс для представления 3D объекта, загружаемого из внешних файлов.
@@ -64,26 +65,50 @@ public class Object3D {
      */
     private void parseMeshFromFiles(String modelName, String textureName) {
         try {
-            String modelPath = "models/" + modelName + ".obj";
-
+            String modelPath = modelName + ".obj";
             mesh = OBJParser.parseOBJ(modelPath);
 
-            String texturePath = "textures/" + textureName + ".png";
-            File textureFile = new File(texturePath);
-
-            Material material;
-
-            if (textureFile.exists()) {
-                BufferedImage texture = ImageIO.read(textureFile);
-                material = new Material(texture);
-            } else {
-                material = new Material(null);
-            }
+            String texturePath = textureName + ".png";
+            Material material = loadTextureResource(texturePath);
 
             mesh.setMaterial(material);
 
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("Model loading error: " + modelName, e);
         }
+    }
+
+    /**
+     * Загружает текстуру из ресурсов или файловой системы.
+     * Работает как в IDE, так и в JAR-файле.
+     *
+     * @param texturePath путь к файлу текстуры
+     * @return материал с текстурой или null-текстурой, если не найден
+     * @throws IOException если произошла ошибка при чтении файла
+     */
+    private Material loadTextureResource(String texturePath) throws IOException {
+        InputStream resourceStream = getClass().getResourceAsStream("/" + texturePath);
+
+        if (resourceStream != null) {
+            try (InputStream is = resourceStream) {
+                BufferedImage texture = ImageIO.read(is);
+                if (texture != null) {
+                    return new Material(texture);
+                }
+            }
+        }
+
+        File textureFile = new File(texturePath);
+        if (textureFile.exists() && textureFile.isFile()) {
+            BufferedImage texture = ImageIO.read(textureFile);
+            if (texture != null) {
+                return new Material(texture);
+            }
+        }
+
+        System.err.println("Texture not found: " + texturePath);
+
+        return new Material(null);
     }
 }

@@ -3,9 +3,7 @@ package scene;
 import core.math.Vector3D;
 
 import java.awt.geom.Point2D;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,20 @@ public class OBJParser {
         List<Point2D> texCoords = new ArrayList<>();
         List<RenderableTriangle> triangles = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        InputStream inputStream;
+
+        inputStream = OBJParser.class.getResourceAsStream("/" + filePath);
+
+        if (inputStream == null) {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                throw new FileNotFoundException("Model file not found: " + filePath);
+            }
+            inputStream = new FileInputStream(file);
+        }
+
+        try (InputStream is = inputStream;
+             BufferedReader br = new BufferedReader(new InputStreamReader(is)))  {
             String line;
 
             while ((line = br.readLine()) != null) {

@@ -41,16 +41,16 @@ public class SceneCreator {
         objects.add(new SimpleObject(floor,
                 new Vector3D(0, -4, 0), Vector3D.zeroVector, Vector3D.oneVector));
 
-        objects.add(new SimpleObject(floor,
-                new Vector3D(0, 0, 5), new Vector3D(Math.PI/2, 0, 0),
-                new Vector3D(1, 1, 2)));
-
-        objects.add(new SimpleObject(floor,
-                new Vector3D(5, 0, 0), new Vector3D(Math.PI/2, 0, Math.PI/2),
-                new Vector3D(1, 1, 2)));
-
-        objects.add(new SimpleObject(floor,
-                new Vector3D(0, 8, 0), Vector3D.zeroVector, Vector3D.oneVector));
+//        objects.add(new SimpleObject(floor,
+//                new Vector3D(0, 0, 5), new Vector3D(Math.PI/2, 0, 0),
+//                new Vector3D(1, 1, 2)));
+//
+//        objects.add(new SimpleObject(floor,
+//                new Vector3D(5, 0, 0), new Vector3D(Math.PI/2, 0, Math.PI/2),
+//                new Vector3D(1, 1, 2)));
+//
+//        objects.add(new SimpleObject(floor,
+//                new Vector3D(0, 8, 0), Vector3D.zeroVector, Vector3D.oneVector));
 
         return objects;
     }
