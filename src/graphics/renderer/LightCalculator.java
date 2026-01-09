@@ -131,36 +131,4 @@ public class LightCalculator {
 
         return new Color(r, g, b);
     }
-
-    /**
-     * Затемняет цвет для тени.
-     * <p>
-     * Применяет два эффекта:
-     * <ol>
-     *   <li>Умножение на коэффициент затемнения (darkness)</li>
-     *   <li>Смешивание с цветом тени (colorMix)</li>
-     * </ol>
-     *
-     * @param color исходный цвет
-     * @return затемненный цвет
-     */
-    private static Color darkenColor(Color color) {
-        Color shadowColor = RenderingConfig.SHADOW_COLOR;
-        double darkness = RenderingConfig.SHADOW_DARKNESS_FACTOR;
-        double colorMix = RenderingConfig.SHADOW_COLOR_MIX;
-
-        int r1 = (int)(color.getRed() * (1 - darkness));
-        int g1 = (int)(color.getGreen() * (1 - darkness));
-        int b1 = (int)(color.getBlue() * (1 - darkness));
-
-        int r2 = (int)(shadowColor.getRed() * colorMix + r1 * (1 - colorMix));
-        int g2 = (int)(shadowColor.getGreen() * colorMix + g1 * (1 - colorMix));
-        int b2 = (int)(shadowColor.getBlue() * colorMix + b1 * (1 - colorMix));
-
-        r2 = Math.min(255, Math.max(0, r2));
-        g2 = Math.min(255, Math.max(0, g2));
-        b2 = Math.min(255, Math.max(0, b2));
-
-        return new Color(r2, g2, b2);
-    }
 }

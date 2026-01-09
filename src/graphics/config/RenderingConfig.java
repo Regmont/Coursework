@@ -24,12 +24,6 @@ public class RenderingConfig {
     /** Цвет для визуализации теней (debug режим). */
     public static final Color SHADOW_COLOR = Color.BLUE;
 
-    /** Коэффициент затемнения в тенях (0.0 - полная темнота, 1.0 - нет теней). */
-    public static final double SHADOW_DARKNESS_FACTOR = 0.3;
-
-    /** Сила смешивания цвета тени с цветом поверхности. */
-    public static final double SHADOW_COLOR_MIX = 0.1;
-
     /** Угол обзора теневых камер (π/2 = 90° для cube map граней). */
     public static final double SHADOW_CAMERA_FOV = Math.PI / 2;
 
