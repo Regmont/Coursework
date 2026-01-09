@@ -10,7 +10,6 @@ import scene.gameObjects.PointLight;
 import graphics.utils.ColorUtils;
 import graphics.utils.LightUtils;
 import graphics.utils.ShadowUtils;
-import graphics.config.RenderingConfig;
 
 import java.awt.Color;
 

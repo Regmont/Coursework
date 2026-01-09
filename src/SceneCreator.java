@@ -28,7 +28,7 @@ public class SceneCreator {
     public static List<SimpleObject> createObjects() {
         Object3D sphere = new Object3D("Sphere");
         Object3D cube = new Object3D("Cube");
-        Object3D terrain = new Object3D("Terrain", "Terrain");
+        Object3D floor = new Object3D("Floor", "Floor");
 
         List<SimpleObject> objects = new ArrayList<>();
 
@@ -38,8 +38,19 @@ public class SceneCreator {
         objects.add(new SimpleObject(cube,
                 new Vector3D(0, -2, 0), Vector3D.zeroVector, Vector3D.oneVector));
 
-        objects.add(new SimpleObject(terrain,
+        objects.add(new SimpleObject(floor,
                 new Vector3D(0, -4, 0), Vector3D.zeroVector, Vector3D.oneVector));
+
+        objects.add(new SimpleObject(floor,
+                new Vector3D(0, 0, 5), new Vector3D(Math.PI/2, 0, 0),
+                new Vector3D(1, 1, 2)));
+
+        objects.add(new SimpleObject(floor,
+                new Vector3D(5, 0, 0), new Vector3D(Math.PI/2, 0, Math.PI/2),
+                new Vector3D(1, 1, 2)));
+
+        objects.add(new SimpleObject(floor,
+                new Vector3D(0, 8, 0), Vector3D.zeroVector, Vector3D.oneVector));
 
         return objects;
     }
@@ -55,16 +66,16 @@ public class SceneCreator {
     public static List<PointLight> createDefaultLight() {
         Object3D smallSphere = new Object3D("SmallSphere");
 
-        SimpleObject light1 = new SimpleObject(smallSphere,
-                Vector3D.zeroVector, Vector3D.zeroVector, Vector3D.oneVector);
-        SimpleObject light2 = new SimpleObject(smallSphere,
+        SimpleObject LED = new SimpleObject(smallSphere,
+                Vector3D.zeroVector, Vector3D.zeroVector, new Vector3D(0.3, 0.3, 0.3));
+        SimpleObject lightbulb = new SimpleObject(smallSphere,
                 Vector3D.zeroVector, Vector3D.zeroVector, Vector3D.oneVector);
 
-        PointLight pointLight = new PointLight(new Vector3D(3, 7, 0));
-        pointLight.setObject(light1);
+        PointLight pointLight = new PointLight(new Vector3D(3, 6, 0));
+        pointLight.setObject(LED);
         pointLight.setColor(Color.RED);
-        PointLight pointLight2 = new PointLight(new Vector3D(-3, 7, 0));
-        pointLight2.setObject(light2);
+        PointLight pointLight2 = new PointLight(new Vector3D(-3, 6, 0));
+        pointLight2.setObject(lightbulb);
 
         List<PointLight> pointLights = new ArrayList<>();
         pointLights.add(pointLight);
